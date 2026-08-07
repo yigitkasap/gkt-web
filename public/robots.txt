@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /superadmin
+Disallow: /api/
+
+Sitemap: https://akdenizgkt.com/sitemap.xml
+
+# AI Crawlers
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# LLMs.txt
+# https://akdenizgkt.com/llms.txt
+# https://akdenizgkt.com/llms-full.txt
