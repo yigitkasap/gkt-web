@@ -9,9 +9,14 @@ const router = Router();
 router.get('/', (req, res) => {
   let sql = 'SELECT * FROM events';
   const params = [];
+  // Tarihi geçen etkinlik, panelde "yaklaşan" işaretli kalsa bile otomatik olarak geçmiş sayılır.
+  // Yalnızca YYYY-MM-DD biçimli tarihler karşılaştırılır; boş/serbest metin tarihler bayrağa göre kalır.
+  const ISO = "date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*'";
+  const PASSED = `(${ISO} AND substr(date, 1, 10) < date('now', 'localtime'))`;
   if (req.query.upcoming !== undefined) {
-    sql += ' WHERE is_upcoming = ?';
-    params.push(parseInt(req.query.upcoming));
+    sql += parseInt(req.query.upcoming) === 1
+      ? ` WHERE is_upcoming = 1 AND NOT ${PASSED}`
+      : ` WHERE (is_upcoming = 0 OR ${PASSED})`;
   }
   sql += ' ORDER BY sort_order ASC, date DESC, id DESC';
   if (req.query.limit) {

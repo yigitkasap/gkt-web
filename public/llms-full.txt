@@ -106,7 +106,6 @@ Topluluk kültürünü canlı tutar ve üye bağlılığını güçlendirir. Yen
 - [Departmanlar](https://akdenizgkt.com/departmanlar)
 - [Blog](https://akdenizgkt.com/blog)
 - [İletişim](https://akdenizgkt.com/iletisim)
-- [18. UGZ Zirvesi](https://akdenizgkt.com/ugz)
 
 ## Sıkça Sorulan Sorular
 Q: GKT nedir?
@@ -116,7 +115,7 @@ Q: GKT'ye nasıl üye olunur?
 A: Her dönem başında üye başvuru formu açılır. Başvuru formu doldurulduktan sonra mülakat süreciyle üye alımı gerçekleşir.
 
 Q: Ulusal Girişimcilik Zirvesi nedir?
-A: Her yıl düzenlenen, Türkiye'nin en büyük öğrenci girişimcilik etkinliğidir. 18. Zirve Nisan 2026'da gerçekleşecektir.
+A: Her yıl düzenlenen, Türkiye'nin en büyük öğrenci girişimcilik etkinliğidir.
 
 Q: GKT etkinliklerine katılmak için üye olmak gerekir mi?
 A: Çoğu etkinlik tüm Akdeniz Üniversitesi öğrencilerine açıktır. Bazı özel workshop'lar sadece üyelere özeldir.

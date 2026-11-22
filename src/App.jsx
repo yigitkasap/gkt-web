@@ -12,11 +12,10 @@ import {
   Menu, X, ArrowRight, ChevronRight, Sparkles, TrendingUp, Award,
   Users, CalendarDays, MapPin, Mail, Phone, Send, CheckCircle, Eye, Target,
   Monitor, Handshake, Newspaper, Clock, User, ArrowUpRight, ExternalLink, Instagram,
-  Youtube, Linkedin, Facebook, Play, Star, Zap, Building2, Briefcase, Gift, Trophy
+  Youtube, Linkedin, Facebook, Star, Zap, Building2, Briefcase, Gift, Trophy
 } from "lucide-react";
 import { NAV, PATHS, STATS, ACTIVITIES, EVENTS_UPCOMING, EVENTS_PAST, DEPARTMENTS, TEAM, MILESTONES, BLOG_POSTS, SPONSORS, INSTAGRAM_POSTS, SOCIALS, ICON_MAP, getIcon } from './fallbackData';
 import { EventIllustration, BlogIllustration } from './illustrations';
-import { CLUBCARD_PARTNERS, CLUBCARD_TIERS } from './clubcardData';
 
 const sanitizeUrl = (url) => {
   if (!url) return '#';
@@ -36,6 +35,14 @@ const CardSkeleton = () => (
       <div className="w-full h-3 bg-gray-50 rounded" />
       <div className="w-4/5 h-3 bg-gray-50 rounded" />
     </div>
+  </div>
+);
+
+const UpcomingEmpty = () => (
+  <div className="md:col-span-3 rounded-2xl border border-dashed border-gray-200 bg-white px-6 py-12 text-center">
+    <CalendarDays className="w-7 h-7 text-red-300 mx-auto mb-3" />
+    <p className="font-display font-bold text-slate-900">Yeni dönem etkinlikleri yakında</p>
+    <p className="mt-1.5 text-sm text-slate-400">Takvim netleştikçe burada duyuracağız. Güncel duyurular için <a href="https://www.instagram.com/akdenizgkt/" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:text-red-600 font-semibold">@akdenizgkt</a> hesabını takip et.</p>
   </div>
 );
 
@@ -89,7 +96,8 @@ export default function App() {
       <Routes>
         <Route path="/admin/*" element={<Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-900"><div className="w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full animate-spin" /></div>}><AdminApp /></Suspense>} />
         <Route path="/superadmin" element={<Suspense fallback={null}><SuperLogin /></Suspense>} />
-        <Route path="/ugz" element={<UGZPage />} />
+        {/* UGZ sayfası kaldırıldı (Kasım 2026); eski linkler ana sayfaya gider. */}
+        <Route path="/ugz" element={<Navigate to="/" replace />} />
         <Route path="/*" element={<SiteDataProvider><MainLayout /></SiteDataProvider>} />
       </Routes>
     </BrowserRouter>
@@ -99,7 +107,7 @@ export default function App() {
 function MainLayout() {
   const location = useLocation();
   const routerNavigate = useNavigate();
-  const { settings, ugzSettings } = useSiteData();
+  const { settings } = useSiteData();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -109,15 +117,12 @@ function MainLayout() {
   const pathToId = Object.fromEntries(Object.entries(PATHS).map(([k, v]) => [v, k]));
   const activePage = pathToId[location.pathname] || "home";
 
-  // Page visibility is driven by admin toggles: raffle results use the main
-  // settings table, UGZ uses its own settings table. Both are absent from the
-  // nav (and unreachable) when their respective toggle is 'false'.
+  // Raffle page visibility is driven by an admin toggle in the settings table;
+  // it is absent from the nav (and unreachable) when the toggle is 'false'.
   const rafflesActive = settings.raffles_page_active === 'true';
-  const ugzActive = ugzSettings.ugz_page_active !== 'false';
-  const visibleNav = (rafflesActive
+  const visibleNav = rafflesActive
     ? [...NAV.slice(0, 5), { label: "Çekiliş", id: "cekilis", path: PATHS.cekilis }, ...NAV.slice(5)]
-    : NAV
-  ).filter(n => n.id !== 'ugz' || ugzActive);
+    : NAV;
 
   useEffect(() => {
     const onScroll = () => { setScrolled(window.scrollY > 30); setShowScrollTop(window.scrollY > 600); };
@@ -153,22 +158,12 @@ function MainLayout() {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-0.5">
-            {visibleNav.map(n =>
-              n.id === "ugz" ? (
-                <a key={n.id} href={n.path} className="relative flex items-center gap-1.5 px-3 py-2 text-xs font-display font-bold rounded-lg transition-all no-underline text-red-500 hover:text-red-600 hover:bg-red-50">
-                  {`${18 + (new Date().getFullYear() - 2026)}. UGZ`}
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
-                  </span>
-                </a>
-              ) : (
-                <Link key={n.id} to={n.path} className={`relative px-3 py-2 text-xs font-display font-medium rounded-lg transition-all no-underline ${activePage === n.id ? "text-red-600" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"}`}>
-                  {n.label}
-                  {activePage === n.id && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-red-500 rounded-full" />}
-                </Link>
-              )
-            )}
+            {visibleNav.map(n => (
+              <Link key={n.id} to={n.path} className={`relative px-3 py-2 text-xs font-display font-medium rounded-lg transition-all no-underline ${activePage === n.id ? "text-red-600" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"}`}>
+                {n.label}
+                {activePage === n.id && <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-red-500 rounded-full" />}
+              </Link>
+            ))}
           </nav>
 
           {/* CTA + Mobile Toggle */}
@@ -189,22 +184,12 @@ function MainLayout() {
           <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
           <div className="absolute top-0 right-0 w-full max-w-xs h-full bg-white shadow-2xl flex flex-col p-6 pt-4 anim-slide" style={{ animationDuration: "0.25s" }}>
             <nav className="flex flex-col gap-1 flex-1">
-              {visibleNav.map((n, i) =>
-                n.id === "ugz" ? (
-                  <a key={n.id} href={n.path} className="flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-display font-bold transition-all anim-fade no-underline bg-red-50/60 text-red-500 hover:bg-red-50" style={{ animationDelay: `${i * 50}ms` }}>
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
-                    </span>
-                    {n.id === 'ugz' ? `${18 + (new Date().getFullYear() - 2026)}. UGZ` : n.label}
-                  </a>
-                ) : (
-                  <Link key={n.id} to={n.path} onClick={() => setMobileOpen(false)} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-display font-medium transition-all anim-fade no-underline ${activePage === n.id ? "bg-red-50 text-red-600" : "text-slate-600 hover:bg-slate-50"}`} style={{ animationDelay: `${i * 50}ms` }}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${activePage === n.id ? "bg-red-500" : "bg-slate-200"}`} />
-                    {n.label}
-                  </Link>
-                )
-              )}
+              {visibleNav.map((n, i) => (
+                <Link key={n.id} to={n.path} onClick={() => setMobileOpen(false)} className={`flex items-center gap-3 px-4 py-3.5 rounded-xl text-base font-display font-medium transition-all anim-fade no-underline ${activePage === n.id ? "bg-red-50 text-red-600" : "text-slate-600 hover:bg-slate-50"}`} style={{ animationDelay: `${i * 50}ms` }}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${activePage === n.id ? "bg-red-500" : "bg-slate-200"}`} />
+                  {n.label}
+                </Link>
+              ))}
             </nav>
             <Link to="/iletisim" onClick={() => setMobileOpen(false)} className="w-full py-3.5 bg-red-500 text-white text-base font-display font-semibold rounded-xl mt-4 text-center block no-underline">Sen de GKT'li Ol</Link>
           </div>
@@ -290,9 +275,7 @@ function CountUp({ target, suffix = "" }) {
 
 function HomePage({ navigate }) {
   const { settings } = useSiteData();
-  const [ugzPlaying, setUgzPlaying] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState(null);
-  const ugzVideoRef = useRef(null);
 
   // API data
   const [apiActivities, setApiActivities] = useState(null);
@@ -300,16 +283,13 @@ function HomePage({ navigate }) {
   const [apiStats, setApiStats] = useState(null);
   const [apiUpcoming, setApiUpcoming] = useState(null);
   const [apiBlog, setApiBlog] = useState(null);
-  const [ugzSettings, setUgzSettings] = useState(null);
 
   useEffect(() => {
     fetchActivities().then(d => Array.isArray(d) && d.length > 0 && setApiActivities(d)).catch(() => {});
     fetchSponsors().then(d => Array.isArray(d) && d.length > 0 && setApiSponsors(d)).catch(() => {});
-    fetchEvents('upcoming=1&limit=3').then(d => Array.isArray(d) && d.length > 0 && setApiUpcoming(d)).catch(() => {});
+    // Yaklaşan etkinliklerde eski yedek veriye düşülmez (yanıltıcı olur): boşsa "yakında" gösterilir.
+    fetchEvents('upcoming=1&limit=3').then(d => setApiUpcoming(Array.isArray(d) ? d : [])).catch(() => setApiUpcoming([]));
     fetchBlog('limit=3').then(d => Array.isArray(d) && d.length > 0 && setApiBlog(d)).catch(() => {});
-    fetch('/api/ugz/settings').then(r => r.ok ? r.json() : []).then(arr => {
-      const obj = {}; if (Array.isArray(arr)) arr.forEach(item => { obj[item.key] = item.value; }); setUgzSettings(obj);
-    }).catch(() => setUgzSettings({}));
   }, []);
 
   useEffect(() => {
@@ -328,21 +308,6 @@ function HomePage({ navigate }) {
   const currentActivities = apiActivities ? apiActivities.map(a => ({ ...a, icon: getIcon(a.icon_name), image: a.image_path, desc: a.description })) : ACTIVITIES;
   const currentSponsors = apiSponsors ? apiSponsors.map(s => ({ name: s.name, logo: s.logo_path })) : SPONSORS;
 
-  const hs = ugzSettings || {};
-  const homeEditionNum = parseInt(hs.ugz_base_number || '18') + (new Date().getFullYear() - parseInt(hs.ugz_base_year || '2026'));
-  const homeUgzTitle = hs.ugz_title || `${homeEditionNum}. Ulusal Girişimcilik Zirvesi`;
-  // Hide homepage UGZ promo section whenever the admin has disabled the page.
-  // Before settings have loaded (ugzSettings === null) we leave the section
-  // visible to avoid a flash on first paint.
-  const homeUgzActive = ugzSettings === null || hs.ugz_page_active !== 'false';
-  const homeUgzDate = (() => {
-    try {
-      const d = new Date((hs.ugz_date || '2026-04-15') + 'T00:00:00');
-      const months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-      return `${months[d.getMonth()]} ${d.getFullYear()}`;
-    } catch { return 'Nisan 2026'; }
-  })();
-
   return (
     <>
       <Helmet>
@@ -356,7 +321,7 @@ function HomePage({ navigate }) {
         <meta property="og:site_name" content="Akdeniz GKT" />
         <meta name="twitter:card" content="summary_large_image" />
         <script type="application/ld+json">{JSON.stringify({"@context":"https://schema.org","@type":"Organization","name":"Akdeniz Üniversitesi Girişimcilik ve Kariyer Topluluğu","alternateName":"Akdeniz GKT","url":"https://akdenizgkt.com","logo":"https://akdenizgkt.com/assets/logo_gkt.png","foundingDate":"2002","address":{"@type":"PostalAddress","addressLocality":"Antalya","addressCountry":"TR"},"sameAs":["https://www.instagram.com/akdenizgkt/","https://www.youtube.com/channel/UCBYzke_LtR9SBacQFjRo7ag","https://www.linkedin.com/company/akdeniz-%C3%BCniversitesi-giri%C5%9Fimcilik-ve-kariyer-toplulu%C4%9Fu/","https://x.com/AkdenizGKT","https://www.facebook.com/akdenizgkt/","https://www.tiktok.com/@gktmedya"]})}</script>
-        <script type="application/ld+json">{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"GKT nedir?","acceptedAnswer":{"@type":"Answer","text":"Akdeniz Üniversitesi Girişimcilik ve Kariyer Topluluğu, 2002 yılında kurulmuş, öğrencilere kariyer rehberliği sunan bir öğrenci topluluğudur. Kariyer günleri, girişimcilik zirveleri, teknik geziler ve sosyal sorumluluk projeleri düzenler."}},{"@type":"Question","name":"GKT'ye nasıl üye olunur?","acceptedAnswer":{"@type":"Answer","text":"Her dönem başında üye başvuru formu açılır. akdenizgkt.com adresinden veya Instagram @akdenizgkt hesabından duyurular takip edilebilir. Başvuru formu doldurulduktan sonra mülakat süreciyle üye alımı gerçekleşir."}},{"@type":"Question","name":"GKT'nin departmanları nelerdir?","acceptedAnswer":{"@type":"Answer","text":"Dört ana departman vardır: Medya ve IT, Etkinlik ve Organizasyon, Kurumsal İlişkiler ve Üye İlişkileri."}},{"@type":"Question","name":"Ulusal Girişimcilik Zirvesi nedir?","acceptedAnswer":{"@type":"Answer","text":"Her yıl düzenlenen, Türkiye'nin en büyük öğrenci girişimcilik etkinliğidir. 18. Zirve Nisan 2026'da gerçekleşecektir."}},{"@type":"Question","name":"GKT etkinliklerine katılmak için üye olmak gerekir mi?","acceptedAnswer":{"@type":"Answer","text":"Çoğu etkinlik tüm Akdeniz Üniversitesi öğrencilerine açıktır. Bazı özel workshop'lar sadece üyelere özeldir."}},{"@type":"Question","name":"GKT ile nasıl iletişime geçebilirim?","acceptedAnswer":{"@type":"Answer","text":"Web sitemizdeki iletişim formu, info@akdenizgkt.com e-posta adresi veya sosyal medya hesaplarımız üzerinden bize ulaşabilirsiniz."}}]})}</script>
+        <script type="application/ld+json">{JSON.stringify({"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"GKT nedir?","acceptedAnswer":{"@type":"Answer","text":"Akdeniz Üniversitesi Girişimcilik ve Kariyer Topluluğu, 2002 yılında kurulmuş, öğrencilere kariyer rehberliği sunan bir öğrenci topluluğudur. Kariyer günleri, girişimcilik zirveleri, teknik geziler ve sosyal sorumluluk projeleri düzenler."}},{"@type":"Question","name":"GKT'ye nasıl üye olunur?","acceptedAnswer":{"@type":"Answer","text":"Her dönem başında üye başvuru formu açılır. akdenizgkt.com adresinden veya Instagram @akdenizgkt hesabından duyurular takip edilebilir. Başvuru formu doldurulduktan sonra mülakat süreciyle üye alımı gerçekleşir."}},{"@type":"Question","name":"GKT'nin departmanları nelerdir?","acceptedAnswer":{"@type":"Answer","text":"Dört ana departman vardır: Medya ve IT, Etkinlik ve Organizasyon, Kurumsal İlişkiler ve Üye İlişkileri."}},{"@type":"Question","name":"Ulusal Girişimcilik Zirvesi nedir?","acceptedAnswer":{"@type":"Answer","text":"Her yıl düzenlenen, Türkiye'nin en büyük öğrenci girişimcilik etkinliğidir."}},{"@type":"Question","name":"GKT etkinliklerine katılmak için üye olmak gerekir mi?","acceptedAnswer":{"@type":"Answer","text":"Çoğu etkinlik tüm Akdeniz Üniversitesi öğrencilerine açıktır. Bazı özel workshop'lar sadece üyelere özeldir."}},{"@type":"Question","name":"GKT ile nasıl iletişime geçebilirim?","acceptedAnswer":{"@type":"Answer","text":"Web sitemizdeki iletişim formu, info@akdenizgkt.com e-posta adresi veya sosyal medya hesaplarımız üzerinden bize ulaşabilirsiniz."}}]})}</script>
         <script type="application/ld+json">{JSON.stringify({"@context":"https://schema.org","@type":"WebPage","speakable":{"@type":"SpeakableSpecification","cssSelector":[".hero-description",".faq-answer"]}})}</script>
       </Helmet>
 
@@ -367,12 +332,6 @@ function HomePage({ navigate }) {
         <div className="relative max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-20 w-full">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="max-w-xl anim-fade">
-              {homeUgzActive && (
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-white/80 text-xs font-display font-semibold mb-8">
-                  <Sparkles className="w-3.5 h-3.5 text-red-400" />
-                  {homeUgzTitle} — {homeUgzDate}
-                </div>
-              )}
               <h1 className="font-display font-extrabold text-white leading-[1.08] tracking-tight" style={{ fontSize: "clamp(2.2rem, 5vw, 3.5rem)" }}>
                 Geleceği{" "}
                 <span className="relative inline-block">
@@ -462,9 +421,6 @@ function HomePage({ navigate }) {
         </div>
       </section>
 
-      {/* Activities → UGZ gradient transition */}
-      <div className="h-12 md:h-20 bg-gradient-to-b from-white to-slate-950" />
-
       {/* ACTIVITY MODAL */}
       {selectedActivity && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSelectedActivity(null)}>
@@ -492,91 +448,14 @@ function HomePage({ navigate }) {
         </div>
       )}
 
-      {/* UGZ TANITIM — always visible. Only the "Zirve Detayları" CTA is hidden
-          when the admin has disabled the UGZ page, since /ugz would 404 then. */}
-      <section className="py-16 md:py-24 bg-slate-950 bg-grid relative overflow-hidden">
-        <div className="relative max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-            <div className="anim-fade">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-white/60 text-[10px] font-display font-bold uppercase tracking-wider mb-5">
-                <Play className="w-3 h-3" /> Tanıtım Filmi
-              </span>
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-display font-extrabold text-white leading-tight">
-                {homeEditionNum}. Ulusal Girişimcilik Zirvesi
-              </h2>
-              <p className="mt-4 text-base text-white/40 leading-relaxed max-w-md">
-                1.000'den fazla katılımcı, 4+ konuşmacı ve onlarca firma ve işletme ile gerçekleştirdiğimiz {homeEditionNum}. Ulusal Girişimcilik Zirvesi'nin tanıtım filmini izleyin.
-              </p>
-              <div className="flex flex-wrap items-center gap-4 mt-8">
-                <div className="flex items-center gap-2 text-white/30 text-sm">
-                  <Users className="w-4 h-4 text-red-400" />
-                  <span className="font-display font-semibold">1.000+ Katılımcı</span>
-                </div>
-                <div className="flex items-center gap-2 text-white/30 text-sm">
-                  <Star className="w-4 h-4 text-red-400" />
-                  <span className="font-display font-semibold">4+ Konuşmacı</span>
-                </div>
-              </div>
-              {homeUgzActive && (
-                <a href="/ugz" className="mt-8 inline-flex items-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-display font-semibold rounded-xl shadow-lg shadow-red-500/25 transition-all active:scale-[0.97] no-underline">
-                  {homeEditionNum}. Zirve Detayları <ArrowRight className="w-4 h-4" />
-                </a>
-              )}
-            </div>
-            <div className="anim-scale" style={{ animationDelay: "0.15s" }}>
-              <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-black/40 aspect-video">
-                {ugzPlaying ? (
-                  <iframe
-                    src="https://www.youtube.com/embed/dE2DqsZW2bg?si=578ydnqNlz6__Reb&autoplay=1&rel=0&start=1"
-                    title={`${homeEditionNum}. Ulusal Girişimcilik Zirvesi tanıtım filmi`}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                    className="absolute inset-0 w-full h-full"
-                  />
-                ) : (
-                  <button onClick={() => setUgzPlaying(true)} aria-label="Tanıtım filmini oynat" className="absolute inset-0 w-full h-full group cursor-pointer">
-                    {/* Graceful fallback: red gradient shows if the 18. UGZ poster is missing. */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-red-950 to-slate-900" />
-                    <img
-                      src="/assets/ugz/ugz-18-kapak.jpg"
-                      alt={`${homeEditionNum}. Ulusal Girişimcilik Zirvesi tanıtım filmi`}
-                      loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover"
-                      onError={e => {
-                        // If local poster missing, try YouTube thumbnail as secondary fallback, then hide entirely.
-                        if (!e.target.dataset.tryYt) {
-                          e.target.dataset.tryYt = '1';
-                          e.target.src = 'https://i.ytimg.com/vi/dE2DqsZW2bg/maxresdefault.jpg';
-                        } else {
-                          e.target.style.display = 'none';
-                        }
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-red-500 flex items-center justify-center shadow-2xl shadow-red-500/40 group-hover:scale-110 transition-transform">
-                        <Play className="w-7 h-7 md:w-8 md:h-8 text-white fill-white ml-1" />
-                      </div>
-                    </div>
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* UGZ → Upcoming gradient transition */}
-      <div className="h-12 md:h-20 bg-gradient-to-b from-slate-950 to-slate-50" />
-
       {/* UPCOMING EVENTS */}
       <section className="py-16 md:py-24 bg-slate-50 bg-dots">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <SectionTitle badge="Etkinlikler" title="Yaklaşan Etkinlikler" desc="Takvimini şimdiden ayarla. Geri sayım başladı." />
           <div className="grid md:grid-cols-3 gap-5">
-            {(apiUpcoming || EVENTS_UPCOMING).map((ev, i) => (
+            {apiUpcoming === null && [0, 1, 2].map(i => <CardSkeleton key={i} />)}
+            {apiUpcoming?.length === 0 && <UpcomingEmpty />}
+            {(apiUpcoming || []).map((ev, i) => (
               <div key={ev.id || ev.title || i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-red-200 hover:shadow-xl hover:shadow-red-500/5 transition-all anim-fade" style={{ animationDelay: `${i * 100}ms` }}>
                 <div className={`h-44 bg-gradient-to-br ${ev.color || 'from-red-500 to-rose-600'} flex items-center justify-center relative overflow-hidden`}>
                   {ev.image_path ? (
@@ -604,30 +483,6 @@ function HomePage({ navigate }) {
               Tüm Etkinlikler <ArrowRight className="w-4 h-4" />
             </button>
           </div>
-        </div>
-      </section>
-
-      {/* GKT CLUB CARD */}
-      <section className="pb-4 md:pb-8 bg-white">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          <Link to="/clubcard" className="group relative block overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 no-underline">
-            <div className="absolute inset-0 bg-grid" />
-            <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-red-600/25 blur-3xl" />
-            <div className="relative grid md:grid-cols-[1fr_auto] items-center gap-8 p-7 md:p-10">
-              <div className="max-w-xl">
-                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white/70 text-[11px] font-display font-semibold mb-4">
-                  <Gift className="w-3.5 h-3.5 text-red-400" /> Yeni · GKT Mutfak'a özel
-                </span>
-                <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white leading-tight">GKT Club Card</h2>
-                <p className="mt-1 text-[11px] font-display font-semibold tracking-[0.3em] text-white/45 uppercase">Bir kart, birçok ayrıcalık</p>
-                <p className="mt-4 text-sm md:text-base text-white/50 leading-relaxed">Antalya'da {CLUBCARD_PARTNERS.length} anlaşmalı işletmede %{Math.max(...CLUBCARD_TIERS)}'e varan indirim. Hangi mekânda ne kadar indirim olduğunu gör.</p>
-                <span className="mt-6 inline-flex items-center gap-2 px-5 py-3 bg-red-500 group-hover:bg-red-600 text-white text-sm font-display font-semibold rounded-xl shadow-lg shadow-red-500/25 transition-all">
-                  İndirimleri gör <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                </span>
-              </div>
-              <img src="/assets/clubcard/kart-on.webp" alt="GKT Club Card" loading="lazy" width="1400" height="882" className="w-full md:w-[22rem] lg:w-[26rem] h-auto rounded-2xl shadow-2xl shadow-black/40 ring-1 ring-white/10 md:rotate-2 group-hover:rotate-0 transition-transform duration-500" />
-            </div>
-          </Link>
         </div>
       </section>
 
@@ -688,7 +543,7 @@ function HomePage({ navigate }) {
             { q: "GKT nedir?", a: "Akdeniz Üniversitesi Girişimcilik ve Kariyer Topluluğu, 2002 yılında kurulmuş, öğrencilere kariyer rehberliği sunan bir öğrenci topluluğudur. Kariyer günleri, girişimcilik zirveleri, teknik geziler ve sosyal sorumluluk projeleri düzenler." },
             { q: "GKT'ye nasıl üye olunur?", a: "Her dönem başında üye başvuru formu açılır. akdenizgkt.com adresinden veya Instagram @akdenizgkt hesabından duyurular takip edilebilir. Başvuru formu doldurulduktan sonra mülakat süreciyle üye alımı gerçekleşir." },
             { q: "GKT'nin departmanları nelerdir?", a: "Dört ana departman vardır: Medya ve IT (dijital iletişim, tasarım), Etkinlik ve Organizasyon (zirve, konferans planlama), Kurumsal İlişkiler (sponsorluk, paydaş yönetimi) ve Üye İlişkileri (üye adaptasyonu, sosyal etkinlikler)." },
-            { q: "Ulusal Girişimcilik Zirvesi nedir?", a: "Her yıl düzenlenen, Türkiye'nin en büyük öğrenci girişimcilik etkinliğidir. 2025'teki 17. Zirve'ye 3.000'den fazla katılımcı ve 40'tan fazla konuşmacı katılmıştır. 18. Zirve Nisan 2026'da gerçekleşecektir." },
+            { q: "Ulusal Girişimcilik Zirvesi nedir?", a: "Her yıl düzenlenen, Türkiye'nin en büyük öğrenci girişimcilik etkinliğidir. 2025'teki 17. Zirve'ye 3.000'den fazla katılımcı ve 40'tan fazla konuşmacı katılmıştır." },
             { q: "GKT etkinliklerine katılmak için üye olmak gerekir mi?", a: "Çoğu etkinlik tüm Akdeniz Üniversitesi öğrencilerine açıktır. Ancak bazı özel workshop'lar ve iç etkinlikler sadece üyelere özeldir." },
             { q: "GKT ile nasıl iletişime geçebilirim?", a: "Web sitemizdeki iletişim formu, info@akdenizgkt.com e-posta adresi veya sosyal medya hesaplarımız üzerinden bize ulaşabilirsiniz." },
           ]} />
@@ -1002,59 +857,19 @@ function HakkimizdaPage({ navigate }) {
    PAGE: ETKİNLİKLER
    ══════════════════════════════════════════════════════════════ */
 function EtkinliklerPage() {
-  const [ugzTime, setUgzTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false });
-  const [blobPos, setBlobPos] = useState({ x: 0, y: 0, visible: false });
-  const ugzCardRef = useRef(null);
   const [apiActivities, setApiActivities] = useState(null);
   const [apiUpcoming, setApiUpcoming] = useState(null);
   const [apiPast, setApiPast] = useState(null);
-  const [ugzSettings, setUgzSettings] = useState(null);
 
   useEffect(() => {
     fetchActivities().then(d => Array.isArray(d) && d.length > 0 && setApiActivities(d.map(a => ({ ...a, icon: getIcon(a.icon_name), image: a.image_path, desc: a.description })))).catch(() => {});
-    fetchEvents('upcoming=1').then(d => Array.isArray(d) && d.length > 0 && setApiUpcoming(d)).catch(() => {});
+    fetchEvents('upcoming=1').then(d => setApiUpcoming(Array.isArray(d) ? d : [])).catch(() => setApiUpcoming([]));
     fetchEvents('upcoming=0').then(d => Array.isArray(d) && d.length > 0 && setApiPast(d)).catch(() => {});
-    fetch('/api/ugz/settings').then(r => r.ok ? r.json() : []).then(arr => {
-      const obj = {}; if (Array.isArray(arr)) arr.forEach(item => { obj[item.key] = item.value; }); setUgzSettings(obj);
-    }).catch(() => setUgzSettings({}));
   }, []);
 
   const etkinlikActivities = apiActivities || ACTIVITIES;
-  const upcomingEvents = apiUpcoming || EVENTS_UPCOMING;
+  const upcomingEvents = apiUpcoming || [];
   const pastEvents = apiPast || EVENTS_PAST;
-
-  const us = ugzSettings || {};
-  const ugzDate = us.ugz_date || '';
-  const ugzTimeStr = (us.ugz_time || '09:00').slice(0, 5);
-  const ugzEdition = us.ugz_title ? us.ugz_title : `${parseInt(us.ugz_base_number || '18') + (new Date().getFullYear() - parseInt(us.ugz_base_year || '2026'))}. Ulusal Girişimcilik Zirvesi`;
-  const ugzLocation = us.ugz_location || 'Kongre Merkezi';
-  const ugzPageActive = !ugzSettings || us.ugz_page_active !== 'false';
-  const ugzCountdownVisible = !ugzSettings || us.ugz_countdown_visible !== 'false';
-
-  // Format date for display
-  const ugzDateDisplay = (() => {
-    if (!ugzDate) return 'Tarih belirlenmedi';
-    try {
-      const d = new Date(ugzDate + 'T00:00:00');
-      if (isNaN(d.getTime())) return 'Tarih belirlenmedi';
-      const months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-      return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-    } catch { return 'Tarih belirlenmedi'; }
-  })();
-
-  useEffect(() => {
-    if (!ugzDate) { setUgzTime({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false }); return; }
-    const target = new Date(`${ugzDate}T${ugzTimeStr}:00`).getTime();
-    if (isNaN(target)) { setUgzTime({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false }); return; }
-    const tick = () => {
-      const diff = target - Date.now();
-      if (diff <= 0) { setUgzTime({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: true }); return; }
-      setUgzTime({ days: Math.floor(diff / 86400000), hours: Math.floor((diff / 3600000) % 24), minutes: Math.floor((diff / 60000) % 60), seconds: Math.floor((diff / 1000) % 60), finished: false });
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [ugzDate, ugzTimeStr]);
 
   return (
     <>
@@ -1066,78 +881,14 @@ function EtkinliklerPage() {
       </Helmet>
       <PageHeader icon={CalendarDays} badge="Etkinlikler" title="Etkinliklerimiz" desc="Ulusal zirvelerden kariyer günlerine, teknik gezilerden sosyal sorumluluk projelerine tüm etkinliklerimiz." />
 
-      {/* Featured UGZ Banner */}
-      {ugzPageActive && (
-      <section className="pt-16 pb-4 bg-white">
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          <a href="/ugz" ref={ugzCardRef} onMouseMove={e => { const r = ugzCardRef.current.getBoundingClientRect(); setBlobPos({ x: e.clientX - r.left, y: e.clientY - r.top, visible: true }); }} onMouseLeave={() => setBlobPos(p => ({ ...p, visible: false }))} className="group relative block rounded-2xl overflow-hidden bg-gradient-to-r from-slate-900 via-red-950 to-slate-900 border border-red-500/20 hover:border-red-500/40 transition-all duration-500 hover:shadow-[0_0_60px_-10px_rgba(220,38,38,0.3)] hover:scale-[1.005] no-underline">
-            {/* Cursor blob */}
-            <div className="absolute w-48 h-48 rounded-full bg-red-500/20 pointer-events-none transition-opacity duration-300" style={{ left: blobPos.x - 96, top: blobPos.y - 96, opacity: blobPos.visible ? 0.5 : 0, filter: 'blur(60px)', willChange: 'opacity' }} />
-            {/* Pulse glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-red-600/0 via-red-600/5 to-red-600/0 animate-pulse pointer-events-none" />
-            {/* Hover shimmer */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000 ease-in-out pointer-events-none" />
-
-            <div className="relative flex flex-col md:flex-row items-center gap-5 md:gap-10 p-5 sm:p-7 md:p-10">
-              {/* Left: Icon + Info */}
-              <div className="flex-1 min-w-0 w-full text-center md:text-left">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 border border-red-500/20 group-hover:bg-red-500/15 group-hover:border-red-500/30 transition-all duration-500 mb-4">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
-                  </span>
-                  <span className="text-[11px] font-display font-bold text-red-400 uppercase tracking-widest">Öne Çıkan Etkinlik</span>
-                </div>
-                <h3 className="text-lg sm:text-2xl md:text-3xl font-display font-extrabold text-white leading-tight group-hover:text-red-50 transition-colors duration-500 break-words">{ugzEdition}</h3>
-                <p className="mt-2 text-sm text-white/30 group-hover:text-white/40 transition-colors duration-500 md:max-w-lg">Türkiye'nin en büyük öğrenci girişimcilik etkinliği. Sektör liderleri, yatırımcılar ve genç girişimciler bir araya geliyor.</p>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-4 justify-center md:justify-start text-white/40 group-hover:text-white/50 transition-colors duration-500 text-xs">
-                  <span className="inline-flex items-center gap-1 whitespace-nowrap"><CalendarDays className="w-3.5 h-3.5 shrink-0" /> {ugzDateDisplay}</span>
-                  <span className="inline-flex items-center gap-1 min-w-0"><MapPin className="w-3.5 h-3.5 shrink-0" /> <span className="truncate">{ugzLocation}</span></span>
-                </div>
-              </div>
-
-              {/* Right: Countdown */}
-              {ugzCountdownVisible && (
-                ugzTime.finished ? (
-                  <div className="shrink-0 px-4 py-3 rounded-xl border border-white/[0.08] bg-white/[0.05] text-center">
-                    <span className="text-xs font-display font-bold text-white/60 uppercase tracking-widest">Etkinlik Gerçekleşti</span>
-                  </div>
-                ) : (
-                <div className="flex items-center justify-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0 w-full md:w-auto">
-                  {[
-                    { val: ugzTime.days, label: "Gün" },
-                    { val: ugzTime.hours, label: "Saat" },
-                    { val: ugzTime.minutes, label: "Dk" },
-                    { val: ugzTime.seconds, label: "Sn" },
-                  ].map((t, i) => (
-                    <div key={i} className="flex flex-col items-center flex-1 md:flex-initial max-w-[72px]">
-                      <div className={`w-full md:w-12 lg:w-14 aspect-square md:aspect-auto md:h-12 lg:h-14 rounded-xl bg-white/[0.05] border border-white/[0.08] group-hover:bg-white/[0.08] group-hover:border-white/[0.12] transition-all duration-500 flex items-center justify-center ${i === 3 ? "animate-pulse" : ""}`}>
-                        <span className="text-base sm:text-lg lg:text-xl font-display font-extrabold text-white tabular-nums">{String(t.val).padStart(2, "0")}</span>
-                      </div>
-                      <span className="text-[9px] font-display font-medium text-white/25 mt-1.5 uppercase tracking-wide">{t.label}</span>
-                    </div>
-                  ))}
-                </div>
-                )
-              )}
-            </div>
-
-            {/* Bottom bar */}
-            <div className="relative flex items-center justify-center gap-2 py-3 bg-red-600/10 group-hover:bg-red-600/20 border-t border-red-500/10 group-hover:border-red-500/20 transition-all duration-500">
-              <span className="text-xs font-display font-semibold text-red-400 group-hover:text-red-300 transition-colors duration-500">Zirve Sayfasına Git</span>
-              <ArrowRight className="w-3.5 h-3.5 text-red-400 group-hover:text-red-300 group-hover:translate-x-1.5 transition-all duration-500" />
-            </div>
-          </a>
-        </div>
-      </section>
-      )}
-
       {/* Developed by Mehmet Yiğit Kasap — https://www.linkedin.com/in/mehmet-yigit-kasap/ */}
       {/* Upcoming Events */}
       <section className="py-20 md:py-28 bg-slate-50 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
           <SectionTitle badge="Yaklaşan" title="Yaklaşan Etkinlikler" align="left" />
           <div className="grid md:grid-cols-3 gap-5">
+            {apiUpcoming === null && [0, 1, 2].map(i => <CardSkeleton key={i} />)}
+            {apiUpcoming?.length === 0 && <UpcomingEmpty />}
             {upcomingEvents.map((ev, i) => (
               <div key={ev.id || ev.title || i} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-red-200 hover:shadow-xl hover:shadow-red-500/5 transition-all anim-fade" style={{ animationDelay: `${i * 100}ms` }}>
                 <div className={`h-44 bg-gradient-to-br ${ev.color || 'from-red-500 to-rose-600'} flex items-center justify-center relative overflow-hidden`}>
@@ -1981,320 +1732,6 @@ function CerezPage({ navigate }) {
       <h2>6. İletişim</h2>
       <p>Çerez politikamız hakkında sorularınız için info@akdenizgkt.com adresinden bize ulaşabilirsiniz.</p>
     </LegalPageLayout>
-  );
-}
-
-/* ══════════════════════════════════════════════════════════════
-   PAGE: 18. UGZ
-   ══════════════════════════════════════════════════════════════ */
-function UGZPage() {
-  const routerNavigate = useNavigate();
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false });
-  const [ugz, setUgz] = useState(null);
-  const [speakers, setSpeakers] = useState([]);
-  const [program, setProgram] = useState([]);
-  const [ugzSponsors, setUgzSponsors] = useState([]);
-
-  useEffect(() => {
-    fetch('/api/ugz/settings').then(r => r.ok ? r.json() : []).then(arr => {
-      const obj = {}; if (Array.isArray(arr)) arr.forEach(item => { obj[item.key] = item.value; }); setUgz(obj);
-    }).catch(() => setUgz({}));
-    fetch('/api/ugz/speakers').then(r => r.ok ? r.json() : []).then(d => Array.isArray(d) && setSpeakers(d)).catch(() => {});
-    fetch('/api/ugz/program').then(r => r.ok ? r.json() : []).then(d => Array.isArray(d) && setProgram(d)).catch(() => {});
-    fetch('/api/ugz/sponsors').then(r => r.ok ? r.json() : []).then(d => Array.isArray(d) && setUgzSponsors(d)).catch(() => {});
-  }, []);
-
-  const s = ugz || {};
-  const settingsLoaded = ugz !== null;
-  const pageActive = !settingsLoaded || s.ugz_page_active !== 'false';
-  const dateStr = s.ugz_date || '';
-  const timeStr = (s.ugz_time || '09:00').slice(0, 5);
-
-  useEffect(() => {
-    if (!dateStr) { setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false }); return; }
-    const target = new Date(`${dateStr}T${timeStr}:00`).getTime();
-    if (isNaN(target)) { setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: false }); return; }
-    const tick = () => {
-      const diff = target - Date.now();
-      if (diff <= 0) { setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, finished: true }); return; }
-      setTimeLeft({
-        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((diff / (1000 * 60)) % 60),
-        seconds: Math.floor((diff / 1000) % 60),
-        finished: false,
-      });
-    };
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [dateStr, timeStr]);
-  const editionNumber = s.ugz_edition_mode === 'manual'
-    ? (s.ugz_edition_number || '18')
-    : String(parseInt(s.ugz_base_number || '18') + (new Date().getFullYear() - parseInt(s.ugz_base_year || '2026')));
-  const ugzTitle = s.ugz_title || `${editionNumber}. Ulusal Girişimcilik Zirvesi`;
-  const ugzSubtitle = s.ugz_subtitle || "Türkiye'nin en büyük öğrenci girişimcilik etkinliği, 18. yılında yine çığır açmaya hazırlanıyor.";
-  const ugzLocation = s.ugz_location || 'Kongre Merkezi, Antalya';
-  const showCountdown = !settingsLoaded || s.ugz_countdown_visible !== 'false';
-  const speakersVisible = settingsLoaded ? s.ugz_speakers_visible !== 'false' : false;
-  const programVisible = settingsLoaded ? s.ugz_program_visible !== 'false' : false;
-  const sponsorsVisible = settingsLoaded ? s.ugz_sponsors_visible !== 'false' : false;
-  const showSpeakers = speakersVisible && speakers.length > 0;
-  const showProgram = programVisible && program.length > 0;
-  const showSponsors = sponsorsVisible && ugzSponsors.length > 0;
-  const regVisible = settingsLoaded ? s.ugz_registration_visible !== 'false' : false;
-  const regOpen = s.ugz_registration_open === 'true';
-  const regUrl = s.ugz_registration_url || '';
-
-  const SESSION_COLORS = { opening: 'border-purple-500', keynote: 'border-red-500', panel: 'border-blue-500', workshop: 'border-green-500', talk: 'border-amber-500', networking: 'border-teal-500', break: 'border-gray-500 border-dashed', closing: 'border-purple-500' };
-  const SESSION_LABELS = { opening: 'Açılış', keynote: 'Keynote', panel: 'Panel', workshop: 'Workshop', talk: 'Konuşma', networking: 'Networking', break: 'Ara', closing: 'Kapanış' };
-  const TIER_ORDER = ['ana', 'platin', 'altin', 'gumus', 'logo', 'cekilis', 'iletisim', 'medya', 'konaklama', 'promosyon', 'giyim', 'urun', 'yiyecek-icecek', 'ulasim', 'paydas'];
-  const TIER_LABELS = {
-    ana: 'Ana Sponsor',
-    platin: 'Platin Sponsor',
-    altin: 'Altın Sponsor',
-    gumus: 'Gümüş Sponsor',
-    logo: 'Logo Sponsor',
-    cekilis: 'Çekiliş Sponsor',
-    iletisim: 'İletişim Sponsor',
-    medya: 'Medya Sponsor',
-    konaklama: 'Konaklama Sponsor',
-    promosyon: 'Promosyon Sponsor',
-    giyim: 'Giyim Sponsor',
-    urun: 'Ürün Sponsor',
-    'yiyecek-icecek': 'Yiyecek ve İçecek Sponsor',
-    ulasim: 'Ulaşım Sponsor',
-    paydas: 'Paydaş',
-  };
-
-  const placeholderSections = [
-    speakersVisible && { icon: Users, title: "Konuşmacılar", desc: "40'tan fazla alanında uzman konuşmacı ile ilham dolu oturumlar." },
-    programVisible && { icon: CalendarDays, title: "Program", desc: "Keynote konuşmalar, paneller, workshop'lar ve networking etkinlikleri." },
-    sponsorsVisible && { icon: Handshake, title: "Sponsorlar", desc: "Sektörün lider markaları 18. Zirve'de buluşuyor." },
-    regVisible && { icon: Send, title: "Kayıt", desc: regOpen ? "Kayıt formu açık! Hemen yerinizi ayırtın." : "Kayıt bilgileri ve bilet seçenekleri yakında duyurulacak." },
-  ];
-
-  // Still loading the active flag? Render nothing for a beat to avoid a flash
-  // of content followed by NotFound on slow connections.
-  if (!settingsLoaded) return null;
-  // Page explicitly disabled → behave like a 404 so the URL is not reachable.
-  if (!pageActive) return <NotFoundPage navigate={(id) => routerNavigate('/')} />;
-
-  return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white" style={{ fontFamily: "'DM Sans', system-ui, sans-serif" }}>
-      <style>{`
-        .bg-grid-ugz { background-image: linear-gradient(rgba(220,38,38,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(220,38,38,0.03) 1px, transparent 1px); background-size: 64px 64px; }
-        @keyframes countPulse { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
-        .count-pulse { animation: countPulse 1s ease-in-out infinite; }
-      `}</style>
-
-      {/* Background effects */}
-      <div className="fixed inset-0 bg-grid-ugz pointer-events-none" />
-
-      {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-6 sm:px-10 py-6 max-w-7xl mx-auto">
-        <div className="flex items-center gap-3">
-          <img src="/assets/logo_gkt.png" alt="GKT" loading="lazy" className="w-8 h-8 rounded-full" />
-          <div className="flex flex-col leading-tight">
-            <span className="font-display font-bold text-sm text-white/60">Akdeniz Üniversitesi</span>
-            <span className="font-display font-medium text-[11px] text-white/30">Girişimcilik ve Kariyer Topluluğu</span>
-          </div>
-        </div>
-        <button onClick={() => routerNavigate("/")} className="text-xs font-display font-semibold text-white/30 hover:text-white flex items-center gap-1.5 transition-colors">
-          <ArrowRight className="w-3.5 h-3.5 rotate-180" /> Ana Siteye Dön
-        </button>
-      </header>
-
-      {/* Hero */}
-      <section className="relative z-10 flex flex-col items-center justify-center text-center px-6 pt-16 pb-12 md:pt-28 md:pb-20">
-        <div className="anim-fade">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-red-500/20 bg-red-500/5 text-red-400 text-[11px] font-display font-bold uppercase tracking-widest mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-500 anim-pulse" /> {regOpen ? 'Kayıtlar Açık' : 'Yakında'} — {ugzLocation}
-          </span>
-        </div>
-        <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-extrabold leading-[1.05] tracking-tight max-w-4xl anim-fade" style={{ animationDelay: "0.1s" }}>
-          {ugzTitle.split(' ').slice(0, -1).join(' ')}<br />
-          <span className="bg-gradient-to-r from-red-500 to-red-400 bg-clip-text text-transparent">{ugzTitle.split(' ').slice(-1)[0] || 'Zirvesi'}</span>
-        </h1>
-        <p className="mt-6 text-base md:text-lg text-white/25 max-w-xl leading-relaxed anim-fade font-display" style={{ animationDelay: "0.2s" }}>
-          {ugzSubtitle}
-        </p>
-
-        {/* Registration button */}
-        {regVisible && regOpen && regUrl && (
-          <a href={sanitizeUrl(regUrl)} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex items-center gap-2 px-8 py-3.5 bg-red-600 hover:bg-red-500 text-white font-display font-bold rounded-xl shadow-2xl shadow-red-600/20 transition-all active:scale-[0.97] text-sm no-underline anim-fade" style={{ animationDelay: "0.25s" }}>
-            Kayıt Ol <ExternalLink className="w-4 h-4" />
-          </a>
-        )}
-
-        {/* Countdown */}
-        {showCountdown && (
-          timeLeft.finished ? (
-            <div className="mt-14 anim-fade" style={{ animationDelay: "0.3s" }}>
-              <div className="px-6 py-4 rounded-2xl border border-white/[0.06] bg-white/[0.03]">
-                <span className="text-sm font-display font-bold text-white/60 uppercase tracking-widest">Etkinlik Gerçekleşti</span>
-              </div>
-            </div>
-          ) : !dateStr ? (
-            <div className="mt-14 anim-fade" style={{ animationDelay: "0.3s" }}>
-              <div className="px-6 py-4 rounded-2xl border border-white/[0.06] bg-white/[0.03]">
-                <span className="text-sm font-display font-bold text-white/40 uppercase tracking-widest">Tarih Yakında Açıklanacak</span>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3 sm:gap-5 mt-14 anim-fade" style={{ animationDelay: "0.3s" }}>
-              {[
-                { val: timeLeft.days, label: "Gün" },
-                { val: timeLeft.hours, label: "Saat" },
-                { val: timeLeft.minutes, label: "Dakika" },
-                { val: timeLeft.seconds, label: "Saniye" },
-              ].map((t, i) => (
-                <div key={i} className="flex flex-col items-center">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
-                    <span className={`text-2xl sm:text-3xl font-display font-extrabold text-white tabular-nums ${i === 3 ? "count-pulse" : ""}`}>{String(t.val).padStart(2, "0")}</span>
-                  </div>
-                  <span className="text-[10px] text-white/20 font-display font-semibold uppercase tracking-wider mt-2.5">{t.label}</span>
-                </div>
-              ))}
-            </div>
-          )
-        )}
-      </section>
-
-      {/* Divider */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6">
-        <div className="h-px bg-gradient-to-r from-transparent via-red-500/20 to-transparent" />
-      </div>
-
-      {/* Speakers */}
-      {showSpeakers && (
-        <section className="relative z-10 max-w-7xl mx-auto px-6 py-16 md:py-24">
-          <h2 className="text-3xl md:text-4xl font-display font-extrabold text-white text-center mb-12">Konuşmacılar</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 md:gap-6">
-            {speakers.map(s => (
-              <div key={s.id} className="group p-6 md:p-8 rounded-2xl border border-white/[0.06] bg-white/[0.015] hover:border-red-500/20 hover:bg-white/[0.03] transition-all text-center">
-                <div className="w-32 h-32 md:w-36 md:h-36 rounded-full mx-auto mb-5 overflow-hidden bg-white/5 border border-white/10 group-hover:border-red-500/30 transition-colors">
-                  {s.image_path ? (
-                    <img src={s.image_path} alt={s.name} loading="lazy" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <User className="w-14 h-14 text-white/20" />
-                    </div>
-                  )}
-                </div>
-                <h3 className="text-lg md:text-xl font-display font-bold text-white leading-tight">{s.name}</h3>
-                <p className="text-sm text-red-400 font-display font-semibold mt-2">{s.title}</p>
-                {s.company && <p className="text-xs text-white/40 mt-1.5 font-display">{s.company}</p>}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Program */}
-      {showProgram && (
-        <section className="relative z-10 max-w-4xl mx-auto px-6 py-16 md:py-24">
-          <h2 className="text-3xl md:text-4xl font-display font-extrabold text-white text-center mb-12">Program</h2>
-          <div className="space-y-4">
-            {program.map(p => (
-              <div key={p.id} className={`flex items-start gap-4 md:gap-6 p-5 md:p-6 rounded-2xl border-l-4 ${SESSION_COLORS[p.session_type] || 'border-white/20'} bg-white/[0.03] hover:bg-white/[0.05] transition-colors`}>
-                <span className="text-base md:text-lg font-display font-bold text-white/50 shrink-0 w-24 md:w-32 pt-0.5">{p.time}</span>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-base md:text-lg font-display font-bold text-white leading-snug">{p.title}</h4>
-                  {p.speaker_name && <p className="text-sm text-red-400 font-display font-semibold mt-1">{p.speaker_name}</p>}
-                  {p.description && <p className="text-sm text-white/40 mt-2 leading-relaxed line-clamp-2">{p.description}</p>}
-                </div>
-                <span className="hidden sm:inline-block text-[10px] md:text-[11px] font-display font-semibold text-white/40 uppercase tracking-wider shrink-0 px-2.5 py-1 rounded-full bg-white/5 border border-white/10">{SESSION_LABELS[p.session_type] || p.session_type}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* UGZ Sponsors */}
-      {showSponsors && (
-        <section className="relative z-10 max-w-5xl mx-auto px-6 py-16 md:py-24">
-          <h2 className="text-2xl font-display font-extrabold text-white text-center mb-10">Sponsorlar</h2>
-          {TIER_ORDER.filter(t => ugzSponsors.some(s => s.tier === t)).map(tier => (
-            <div key={tier} className="mb-8">
-              <p className="text-xs font-display font-semibold text-white/30 uppercase tracking-wider text-center mb-4">{TIER_LABELS[tier]}</p>
-              <div className={`flex items-center justify-center flex-wrap ${tier === 'ana' ? 'gap-6' : tier === 'platin' ? 'gap-5' : tier === 'altin' ? 'gap-4' : 'gap-3'}`}>
-                {ugzSponsors.filter(s => s.tier === tier).map(s => {
-                  // Size hierarchy: ana > platin > altın > rest. Logo scales with tier; name stays readable underneath.
-                  const sizes = tier === 'ana'
-                    ? { card: 'w-64 sm:w-72', logo: 'h-28 sm:h-32', name: 'text-sm', pad: 'p-5' }
-                    : tier === 'platin'
-                    ? { card: 'w-56 sm:w-64', logo: 'h-24 sm:h-28', name: 'text-sm', pad: 'p-4' }
-                    : tier === 'altin'
-                    ? { card: 'w-44 sm:w-52', logo: 'h-20 sm:h-24', name: 'text-xs', pad: 'p-4' }
-                    : { card: 'w-36 sm:w-40', logo: 'h-16 sm:h-20', name: 'text-[11px]', pad: 'p-3' };
-                  return (
-                    <a
-                      key={s.id}
-                      href={sanitizeUrl(s.website_url)}
-                      target={s.website_url ? '_blank' : '_self'}
-                      rel="noopener noreferrer"
-                      className={`group rounded-xl bg-white border border-white/10 hover:border-red-500/40 hover:shadow-lg hover:shadow-red-500/10 flex flex-col items-center justify-center gap-2 transition-all ${sizes.card} ${sizes.pad}`}
-                    >
-                      <div className={`${sizes.logo} w-full flex items-center justify-center`}>
-                        {s.logo_path
-                          ? <img src={s.logo_path} alt={s.name} loading="lazy" className="max-w-full max-h-full object-contain" />
-                          : <span className="text-xs font-display font-bold text-slate-400">Logo</span>}
-                      </div>
-                      <span className={`${sizes.name} font-display font-semibold text-slate-700 text-center leading-tight line-clamp-2 break-words w-full`}>{s.name}</span>
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </section>
-      )}
-
-      {/* Placeholder sections — shown when no dynamic data for visible sections */}
-      {placeholderSections.filter(Boolean).length > 0 && !showSpeakers && !showProgram && !showSponsors && (
-        <section className="relative z-10 max-w-5xl mx-auto px-6 py-16 md:py-24">
-          <div className="grid sm:grid-cols-2 gap-4">
-            {placeholderSections.filter(Boolean).map((s, i) => (
-              <div key={i} className="group p-6 md:p-8 rounded-2xl border border-white/[0.06] bg-white/[0.015] hover:border-red-500/20 hover:bg-red-500/[0.03] transition-all anim-fade" style={{ animationDelay: `${0.4 + i * 0.1}s` }}>
-                <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 group-hover:bg-red-500/20 transition-colors">
-                  <s.icon className="w-5 h-5 text-red-500" />
-                </div>
-                <h3 className="text-base font-display font-bold text-white mb-2">{s.title}</h3>
-                <p className="text-sm text-white/25 leading-relaxed">{s.desc}</p>
-                <p className="text-[11px] text-red-500/40 font-display font-semibold mt-4 uppercase tracking-wider">Yakında açıklanacak</p>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* CTA */}
-      <section className="relative z-10 text-center pt-16 md:pt-24 pb-20 md:pb-28 px-6">
-        <div className="max-w-2xl mx-auto">
-          <p className="text-sm text-white/15 mb-6 font-display">Gelişmelerden haberdar olmak için bizi takip edin</p>
-          <div className="flex items-center justify-center gap-2.5 mb-10">
-            {[
-              { icon: Instagram, label: "Instagram", href: "https://www.instagram.com/akdenizgkt/" },
-              { icon: Youtube, label: "YouTube", href: "https://www.youtube.com/channel/UCBYzke_LtR9SBacQFjRo7ag" },
-              { icon: ({ className }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>, label: "X", href: "https://x.com/AkdenizGKT" },
-              { icon: ({ className }) => <svg viewBox="0 0 24 24" fill="currentColor" className={className}><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9a6.33 6.33 0 00-.79-.05A6.34 6.34 0 003.15 15.3a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V9.05a8.27 8.27 0 004.76 1.5V7.12a4.83 4.83 0 01-1-.43z"/></svg>, label: "TikTok", href: "https://www.tiktok.com/@gktmedya?lang=tr-TR" },
-              { icon: Facebook, label: "Facebook", href: "https://www.facebook.com/akdenizgkt/?locale=tr_TR" },
-              { icon: Linkedin, label: "LinkedIn", href: "https://www.linkedin.com/company/akdeniz-%C3%BCniversitesi-giri%C5%9Fimcilik-ve-kariyer-toplulu%C4%9Fu/" },
-            ].map((s, i) => (
-              <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/[0.03] hover:bg-red-500/15 border border-white/[0.06] hover:border-red-500/20 flex items-center justify-center transition-all" title={s.label}>
-                <s.icon className="w-4 h-4 text-white/25 hover:text-red-400 transition-colors" />
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-white/[0.04] py-6 text-center">
-        <p className="text-[10px] text-white/10 font-display">© 2026 Akdeniz Üniversitesi Girişimcilik ve Kariyer Topluluğu</p>
-      </footer>
-    </div>
   );
 }
 
