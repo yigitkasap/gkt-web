@@ -15,6 +15,7 @@ export const NAV = [
   { label: "Etkinlikler", id: "etkinlikler", path: "/etkinlikler" },
   { label: "Departmanlar", id: "departmanlar", path: "/departmanlar" },
   { label: "Blog", id: "blog", path: "/blog" },
+  { label: "Club Card", id: "clubcard", path: "/clubcard" },
   { label: "İletişim", id: "iletisim", path: "/iletisim" },
   { label: "18. UGZ", id: "ugz", path: "/ugz" },
 ];
@@ -22,7 +23,7 @@ export const NAV = [
 export const PATHS = {
   home: "/", hakkimizda: "/hakkimizda", etkinlikler: "/etkinlikler",
   departmanlar: "/departmanlar", blog: "/blog", iletisim: "/iletisim",
-  ugz: "/ugz", cekilis: "/cekilis", gizlilik: "/gizlilik",
+  ugz: "/ugz", cekilis: "/cekilis", clubcard: "/clubcard", gizlilik: "/gizlilik",
   "kullanim-sartlari": "/kullanim-sartlari", kvkk: "/kvkk", cerez: "/cerez",
 };
 

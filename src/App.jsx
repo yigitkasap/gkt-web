@@ -7,6 +7,7 @@ import { Helmet } from 'react-helmet-async';
 const AdminApp = lazy(() => import("./admin/AdminApp"));
 const SuperLogin = lazy(() => import("./admin/SuperLogin"));
 const BlogDetailPage = lazy(() => import('./BlogDetailPage'));
+const ClubCardPage = lazy(() => import('./ClubCardPage'));
 import {
   Menu, X, ArrowRight, ChevronRight, Sparkles, TrendingUp, Award,
   Users, CalendarDays, MapPin, Mail, Phone, Send, CheckCircle, Eye, Target,
@@ -15,6 +16,7 @@ import {
 } from "lucide-react";
 import { NAV, PATHS, STATS, ACTIVITIES, EVENTS_UPCOMING, EVENTS_PAST, DEPARTMENTS, TEAM, MILESTONES, BLOG_POSTS, SPONSORS, INSTAGRAM_POSTS, SOCIALS, ICON_MAP, getIcon } from './fallbackData';
 import { EventIllustration, BlogIllustration } from './illustrations';
+import { CLUBCARD_PARTNERS, CLUBCARD_TIERS } from './clubcardData';
 
 const sanitizeUrl = (url) => {
   if (!url) return '#';
@@ -219,6 +221,9 @@ function MainLayout() {
           <Route path="/blog" element={<BlogPage />} />
           <Route path="/blog/:slug" element={<Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full animate-spin" /></div>}><BlogDetailPage /></Suspense>} />
           <Route path="/iletisim" element={<IletisimPage navigate={navigate} />} />
+          <Route path="/clubcard" element={<Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full animate-spin" /></div>}><ClubCardPage /></Suspense>} />
+          {/* Basılı kartlardaki QR kod /clupkart adresine gidiyor — kaldırma. */}
+          {["/clupkart", "/clubkart", "/clup-kart", "/club-card", "/clup-card"].map(p => <Route key={p} path={p} element={<Navigate to="/clubcard" replace />} />)}
           <Route path="/cekilis" element={<CekilisPage active={rafflesActive} navigate={navigate} />} />
           {/* Backwards-compat redirect from old URL */}
           <Route path="/cekilis-sonuclari" element={<Navigate to="/cekilis" replace />} />
@@ -599,6 +604,30 @@ function HomePage({ navigate }) {
               Tüm Etkinlikler <ArrowRight className="w-4 h-4" />
             </button>
           </div>
+        </div>
+      </section>
+
+      {/* GKT CLUB CARD */}
+      <section className="pb-4 md:pb-8 bg-white">
+        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+          <Link to="/clubcard" className="group relative block overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 no-underline">
+            <div className="absolute inset-0 bg-grid" />
+            <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-red-600/25 blur-3xl" />
+            <div className="relative grid md:grid-cols-[1fr_auto] items-center gap-8 p-7 md:p-10">
+              <div className="max-w-xl">
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-white/70 text-[11px] font-display font-semibold mb-4">
+                  <Gift className="w-3.5 h-3.5 text-red-400" /> Yeni · GKT Mutfak'a özel
+                </span>
+                <h2 className="text-2xl md:text-3xl font-display font-extrabold text-white leading-tight">GKT Club Card</h2>
+                <p className="mt-1 text-[11px] font-display font-semibold tracking-[0.3em] text-white/45 uppercase">Bir kart, birçok ayrıcalık</p>
+                <p className="mt-4 text-sm md:text-base text-white/50 leading-relaxed">Antalya'da {CLUBCARD_PARTNERS.length} anlaşmalı işletmede %{Math.max(...CLUBCARD_TIERS)}'e varan indirim. Hangi mekânda ne kadar indirim olduğunu gör.</p>
+                <span className="mt-6 inline-flex items-center gap-2 px-5 py-3 bg-red-500 group-hover:bg-red-600 text-white text-sm font-display font-semibold rounded-xl shadow-lg shadow-red-500/25 transition-all">
+                  İndirimleri gör <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </span>
+              </div>
+              <img src="/assets/clubcard/kart-on.webp" alt="GKT Club Card" loading="lazy" width="1400" height="882" className="w-full md:w-[22rem] lg:w-[26rem] h-auto rounded-2xl shadow-2xl shadow-black/40 ring-1 ring-white/10 md:rotate-2 group-hover:rotate-0 transition-transform duration-500" />
+            </div>
+          </Link>
         </div>
       </section>
 

@@ -208,6 +208,11 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
+// ═══════ CLUB CARD REDIRECTS ═══════
+// Basılı GKT Club Card'lardaki QR kod https://akdenizgkt.com/clupkart adresine gidiyor — kaldırma.
+// (Frontend de aynı yönlendirmeyi yapıyor; bu, sunucu yeniden başlatılınca 301 olarak devreye girer.)
+app.get(['/clupkart', '/clubkart', '/clup-kart', '/club-card', '/clup-card'], (req, res) => res.redirect(301, '/clubcard'));
+
 // ═══════ SITEMAP ═══════
 app.get('/sitemap.xml', (req, res) => {
   const posts = db.prepare("SELECT slug, updated_at FROM blog_posts WHERE slug IS NOT NULL AND slug != ''").all();
@@ -216,7 +221,7 @@ app.get('/sitemap.xml', (req, res) => {
     { loc: '/', cf: 'weekly', p: '1.0' }, { loc: '/hakkimizda', cf: 'monthly', p: '0.8' },
     { loc: '/etkinlikler', cf: 'weekly', p: '0.8' }, { loc: '/departmanlar', cf: 'monthly', p: '0.8' },
     { loc: '/blog', cf: 'weekly', p: '0.8' }, { loc: '/iletisim', cf: 'monthly', p: '0.8' },
-    { loc: '/ugz', cf: 'weekly', p: '0.9' },
+    { loc: '/ugz', cf: 'weekly', p: '0.9' }, { loc: '/clubcard', cf: 'monthly', p: '0.8' },
   ];
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
   for (const pg of staticPages) xml += `  <url><loc>${baseUrl}${pg.loc}</loc><changefreq>${pg.cf}</changefreq><priority>${pg.p}</priority></url>\n`;
