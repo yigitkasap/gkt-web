@@ -58,6 +58,8 @@ export default function ClubCardPage() {
         <title>GKT Club Card | Akdeniz GKT</title>
         <meta name="description" content={`GKT Club Card ile GKT Mutfak üyeleri Antalya'da ${CLUBCARD_PARTNERS.length} anlaşmalı işletmede %${maxDiscount}'e varan indirimden yararlanır. ${CLUBCARD_PERIOD} dönemi güncel listesi.`} />
         <link rel="canonical" href="https://akdenizgkt.com/clubcard" />
+        {/* Yönetim kararı: yalnızca link/QR ile açılır, arama sonuçlarında listelenmez (server/seo.js ile aynı) */}
+        <meta name="robots" content="noindex, follow" />
         <meta property="og:title" content="GKT Club Card — Bir kart, birçok ayrıcalık" />
         <meta property="og:description" content={`GKT Mutfak üyelerine ${CLUBCARD_PARTNERS.length} işletmede %${maxDiscount}'e varan indirim.`} />
         <meta property="og:image" content="https://akdenizgkt.com/assets/clubcard/kart-on.jpg" />

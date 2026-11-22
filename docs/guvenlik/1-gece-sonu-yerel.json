@@ -1,0 +1,47 @@
+{
+  "tarih": "2026-11-22T22:27:33.220Z",
+  "secenekler": {
+    "gecmis": true,
+    "canli": true,
+    "json": "docs/guvenlik/1-gece-sonu-yerel.json",
+    "site": "https://akdenizgkt.com"
+  },
+  "sayac": {
+    "KRİTİK": 0,
+    "YÜKSEK": 0,
+    "ORTA": 2,
+    "DÜŞÜK": 3
+  },
+  "bulgular": [
+    {
+      "seviye": "ORTA",
+      "alan": "kişisel veri",
+      "mesaj": "iletişim mesajlarını (ad/e-posta/telefon) her rol okuyabiliyor — en az koordinatör olmalı",
+      "yer": "server/routes/messages.js"
+    },
+    {
+      "seviye": "ORTA",
+      "alan": "canlı başlık",
+      "mesaj": "CSP script-src 'unsafe-inline' içeriyor",
+      "yer": "https://akdenizgkt.com"
+    },
+    {
+      "seviye": "DÜŞÜK",
+      "alan": "oturum",
+      "mesaj": "token localStorage'da (XSS olursa çalınabilir) — CSP ile birlikte değerlendir",
+      "yer": "src/admin/AdminLogin.jsx:20"
+    },
+    {
+      "seviye": "DÜŞÜK",
+      "alan": "oturum",
+      "mesaj": "token localStorage'da (XSS olursa çalınabilir) — CSP ile birlikte değerlendir",
+      "yer": "src/admin/SuperLogin.jsx:28"
+    },
+    {
+      "seviye": "DÜŞÜK",
+      "alan": "oturum",
+      "mesaj": "token localStorage'da (XSS olursa çalınabilir) — CSP ile birlikte değerlendir",
+      "yer": "src/admin/adminApi.js:57"
+    }
+  ]
+}

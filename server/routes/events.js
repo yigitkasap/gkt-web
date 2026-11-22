@@ -2,6 +2,7 @@ import { Router } from 'express';
 import db from '../db.js';
 import { requireAuth, requireAdmin, requireDirektor } from '../auth.js';
 import { validateAssetPath } from '../validate.js';
+import { UPCOMING_WHERE, PAST_WHERE } from '../lib/eventFilters.js';
 
 const router = Router();
 
@@ -9,14 +10,9 @@ const router = Router();
 router.get('/', (req, res) => {
   let sql = 'SELECT * FROM events';
   const params = [];
-  // Tarihi geçen etkinlik, panelde "yaklaşan" işaretli kalsa bile otomatik olarak geçmiş sayılır.
-  // Yalnızca YYYY-MM-DD biçimli tarihler karşılaştırılır; boş/serbest metin tarihler bayrağa göre kalır.
-  const ISO = "date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*'";
-  const PASSED = `(${ISO} AND substr(date, 1, 10) < date('now', 'localtime'))`;
+  // Tarihi geçen etkinlik otomatik geçmiş sayılır (bkz. lib/eventFilters.js)
   if (req.query.upcoming !== undefined) {
-    sql += parseInt(req.query.upcoming) === 1
-      ? ` WHERE is_upcoming = 1 AND NOT ${PASSED}`
-      : ` WHERE (is_upcoming = 0 OR ${PASSED})`;
+    sql += parseInt(req.query.upcoming) === 1 ? ` WHERE ${UPCOMING_WHERE}` : ` WHERE ${PAST_WHERE}`;
   }
   sql += ' ORDER BY sort_order ASC, date DESC, id DESC';
   if (req.query.limit) {

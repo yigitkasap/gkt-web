@@ -96,7 +96,7 @@ const upsertSetting = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?
 const settings = {
   stat_year: "24+", stat_members: "6000+", stat_events: "200+", stat_partners: "50+",
   contact_address: "Akdeniz Üniversitesi, Dumlupınar Blv. 07058, Konyaaltı / Antalya",
-  contact_phone: "+90 551 167 79 68",
+  contact_phone: "", // resmi iletişim telefonu panelden girilir (kişisel numara koda yazılmaz)
   contact_email: "info@akdenizgkt.com",
   social_instagram: "https://www.instagram.com/akdenizgkt/",
   social_youtube: "https://www.youtube.com/channel/UCBYzke_LtR9SBacQFjRo7ag",

@@ -54,7 +54,7 @@ const SIR_KALIPLARI = [
   [/-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/, 'özel anahtar'],
   [/AKIA[0-9A-Z]{16}/, 'AWS erişim anahtarı'],
   [/gh[pousr]_[A-Za-z0-9]{30,}/, 'GitHub token'],
-  [/(JWT_SECRET|RECOVERY_SECRET|ADMIN_INITIAL_PASSWORD|DB_PASSWORD|API_KEY)\s*=\s*[^\s<'"`$]{6,}/, 'ortam değişkeni değeri koda yazılmış'],
+  [/(JWT_SECRET|RECOVERY_SECRET|ADMIN_INITIAL_PASSWORD|DB_PASSWORD|API_KEY)\s*=\s*(?!process\.env)[^\s<'"`$]{6,}/, 'ortam değişkeni değeri koda yazılmış'],
   [/(password|şifre|sifre|passwd)["']?\s*[:=]\s*["'][^"'\s]{6,}["']/i, 'koda gömülü şifre'],
   [/hashSync\(\s*["'][^"']+["']/, 'sabit metinden şifre hash\'i (varsayılan şifre)'],
   [/gkt2026admin|Koord2026!|Dir2026!/, 'eskiden sızmış panel şifresi'],
@@ -94,7 +94,7 @@ for (const f of okunur) {
   for (const [re, ad] of PII) {
     for (const m of metin.matchAll(re)) {
       const v = m[0];
-      if (PII_IZINLI.has(v) || /example\.|test@test|@akdenizgkt\.com$/.test(v)) continue;
+      if (PII_IZINLI.has(v) || /example\.|@ornek\.com$|test@test|@akdenizgkt\.com$/.test(v)) continue;
       if (ad === 'TC kimlik no olabilir' && !tcGecerli(v)) continue;
       if (ad === 'e-posta' && /\.(png|jpe?g|webp|svg|js|css)$/i.test(v)) continue;
       const satir = metin.slice(0, m.index).split('\n').length;
@@ -135,16 +135,17 @@ if (/origin:\s*['"]\*['"]|origin:\s*true/.test(idx)) ekle('YÜKSEK', 'CORS', 'CO
 if (!/authLimiter/.test(idx)) ekle('YÜKSEK', 'kaba kuvvet', 'giriş için hız sınırı yok', 'server/index.js');
 const auth = kod('server/auth.js');
 if (!/JWT_SECRET\.length\s*<\s*(2\d|3\d)/.test(auth)) ekle('ORTA', 'JWT', 'JWT_SECRET uzunluk kontrolü yok', 'server/auth.js');
-if (/process\.exit/.test(auth) === false && /CRITICAL: JWT_SECRET/.test(auth)) ekle('YÜKSEK', 'JWT', 'JWT_SECRET yoksa sunucu yine de açılıyor (imzasız/zayıf token riski) — başlatmayı durdur', 'server/auth.js');
+if (!/if \(!JWT_SECRET\) throw/.test(auth)) ekle('YÜKSEK', 'JWT', 'JWT_SECRET yoksa token üretimi engellenmiyor', 'server/auth.js');
+if (!/token_version/.test(auth)) ekle('ORTA', 'oturum', 'token her istekte veritabanından doğrulanmıyor (silinen hesap/şifre değişimi 24 saat geçerli kalır)', 'server/auth.js');
 const authRoutes = kod('server/routes/auth.js');
 if (!/\/password/.test(authRoutes)) ekle('ORTA', 'hesap', 'şifre değiştirme/sıfırlama uç noktası yok (sızıntıda hesap silmek gerekiyor)', 'server/routes/auth.js');
 if (/secret !== RECOVERY_SECRET/.test(authRoutes)) ekle('DÜŞÜK', 'zamanlama', 'kurtarma anahtarı sabit zamanlı karşılaştırılmıyor (timingSafeEqual)', 'server/routes/auth.js');
 const settingsR = kod('server/routes/settings.js');
-if (/router\.get\('\/'[^]*SELECT key, value FROM settings'\)/.test(settingsR) && !/PUBLIC_KEYS|izinli|whitelist/i.test(settingsR)) ekle('ORTA', 'veri sızıntısı', 'GET /api/settings tüm ayar anahtarlarını herkese döndürüyor — yalnızca herkese açık anahtarlar dönmeli', 'server/routes/settings.js');
+if (!/PUBLIC_KEY/.test(settingsR)) ekle('ORTA', 'veri sızıntısı', 'GET /api/settings tüm ayar anahtarlarını herkese döndürüyor — yalnızca herkese açık anahtarlar dönmeli', 'server/routes/settings.js');
 const msgR = kod('server/routes/messages.js');
 if (/router\.get\('\/', requireAuth/.test(msgR)) ekle('ORTA', 'kişisel veri', 'iletişim mesajlarını (ad/e-posta/telefon) her rol okuyabiliyor — en az koordinatör olmalı', 'server/routes/messages.js');
 const teamR = kod('server/routes/team.js');
-if (/router\.get\('\/'[^]*SELECT \* FROM team_members/.test(teamR)) ekle('ORTA', 'kişisel veri', 'GET /api/team SELECT * ile telefon/e-posta alanlarını herkese döndürüyor', 'server/routes/team.js');
+if (!/PUBLIC_COLUMNS/.test(teamR)) ekle('ORTA', 'kişisel veri', 'GET /api/team telefon/e-posta alanlarını herkese döndürüyor (alan süzmesi yok)', 'server/routes/team.js');
 
 // ─────────────────────────────────────────────── 4. Bağımlılıklar ve build
 try {
@@ -169,7 +170,7 @@ if (OPT.canli) {
   const al = async (p, opt = {}) => {
     try {
       const r = await fetch(OPT.site + p, { redirect: 'manual', ...opt, headers: { 'User-Agent': 'gkt-guvenlik-kontrol/1.0', ...(opt.headers || {}) } });
-      const govde = r.status < 400 ? (await r.text()).slice(0, 4000) : '';
+      const govde = r.status < 400 ? (await r.text()).slice(0, 400000) : '';
       return { s: r.status, h: r.headers, govde };
     } catch (e) { return { s: 0, h: new Headers(), govde: '', hata: e.message }; }
   };

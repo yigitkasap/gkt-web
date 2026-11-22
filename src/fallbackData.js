@@ -111,3 +111,19 @@ export const SOCIALS = [
    ══════════════════════════════════════════════════════════════ */
 export const ICON_MAP = { Sparkles, TrendingUp, Award, Users, CalendarDays, MapPin, Mail, Phone, Monitor, Handshake, Newspaper, Clock, Target, Play, Star, Zap, BookOpen, Coffee, Music, Globe, Heart, Building2, GraduationCap, Briefcase, Megaphone, Compass, Rocket, Eye };
 export const getIcon = (name) => ICON_MAP[name] || Star;
+
+// SSS — sitede (FAQSection) ve sunucu tarafı SEO özetinde (server/seo.js) aynı kaynaktan kullanılır.
+export const HOME_FAQ = [
+  { q: "GKT nedir?", a: "Akdeniz Üniversitesi Girişimcilik ve Kariyer Topluluğu, 2002 yılında kurulmuş, öğrencilere kariyer rehberliği sunan bir öğrenci topluluğudur. Kariyer günleri, girişimcilik zirveleri, teknik geziler ve sosyal sorumluluk projeleri düzenler." },
+  { q: "GKT'ye nasıl üye olunur?", a: "Her dönem başında üye başvuru formu açılır. akdenizgkt.com adresinden veya Instagram @akdenizgkt hesabından duyurular takip edilebilir. Başvuru formu doldurulduktan sonra mülakat süreciyle üye alımı gerçekleşir." },
+  { q: "GKT'nin departmanları nelerdir?", a: "Dört ana departman vardır: Medya ve IT (dijital iletişim, tasarım), Etkinlik ve Organizasyon (zirve, konferans planlama), Kurumsal İlişkiler (sponsorluk, paydaş yönetimi) ve Üye İlişkileri (üye adaptasyonu, sosyal etkinlikler)." },
+  { q: "Ulusal Girişimcilik Zirvesi nedir?", a: "Her yıl düzenlenen, Türkiye'nin en büyük öğrenci girişimcilik etkinliğidir. 2025'teki 17. Zirve'ye 3.000'den fazla katılımcı ve 40'tan fazla konuşmacı katılmıştır." },
+  { q: "GKT etkinliklerine katılmak için üye olmak gerekir mi?", a: "Çoğu etkinlik tüm Akdeniz Üniversitesi öğrencilerine açıktır. Ancak bazı özel workshop'lar ve iç etkinlikler sadece üyelere özeldir." },
+  { q: "GKT ile nasıl iletişime geçebilirim?", a: "Web sitemizdeki iletişim formu, info@akdenizgkt.com e-posta adresi veya sosyal medya hesaplarımız üzerinden bize ulaşabilirsiniz." },
+];
+
+export const ABOUT_FAQ = [
+  { q: "GKT kaç yıldır faaliyet gösteriyor?", a: "2002 yılında kurulmuştur, 24 yılı aşkın deneyime sahiptir." },
+  { q: "GKT'nin vizyonu nedir?", a: "Girişimci, akılcı, ilkeli ve sorumlu yaklaşımla Türkiye'nin önde gelen öğrenci topluluğu olmak." },
+  { q: "GKT'de hangi becerileri kazanabilirim?", a: "Takım çalışması, proje yönetimi, liderlik, etkinlik organizasyonu, kurumsal iletişim, dijital pazarlama, grafik tasarım ve networking becerileri." },
+];

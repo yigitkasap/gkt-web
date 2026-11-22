@@ -1,0 +1,5 @@
+{
+  "_aciklama": "Güvenlik denetiminde bilerek izin verilen istisnalar. Gerçek kişisel veri veya sır buraya EKLENMEZ.",
+  "pii": ["ornek@email.com"],
+  "dosyalar": []
+}

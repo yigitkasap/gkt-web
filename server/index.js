@@ -10,6 +10,7 @@ import sharp from 'sharp';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { requireAuth } from './auth.js';
+import { renderPage, renderApp } from './seo.js';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -240,14 +241,23 @@ app.get('/sitemap.xml', (req, res) => {
 if (isProd) {
   const distPath = path.join(__dirname, '..', 'dist');
   app.use(express.static(distPath, {
-    maxAge: '1y',
+    index: false, // "/" de SEO katmanından geçsin (sayfaya özel meta + içerik özeti)
+    maxAge: '1d',
     setHeaders: (res, filePath) => {
+      // Yalnızca adı hash'li derleme dosyaları kalıcı önbelleğe alınır; aynı adla değişebilen
+      // görseller (logo, etkinlik görselleri vb.) 1 gün sonra yenilenir.
+      if (/-[A-Za-z0-9_-]{8}\.(js|css)$/.test(filePath)) res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
       if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
     }
   }));
+  // Bilinmeyen API adresleri asılı kalmasın
+  app.use('/api', (req, res) => res.status(404).json({ error: 'Bulunamadı' }));
   // Express 5 + path-to-regexp v8 reject bare '*' — use a regex catch-all instead.
-  app.get(/.*/, (req, res) => {
-    if (!req.path.startsWith('/api')) res.sendFile(path.join(distPath, 'index.html'));
+  app.get(/.*/, (req, res, next) => {
+    try {
+      const { status, html } = /^\/(admin|superadmin)(\/|$)/.test(req.path) ? renderApp(distPath) : renderPage(req.path, distPath);
+      res.status(status).set('Cache-Control', 'no-cache').type('html').send(html);
+    } catch (err) { next(err); }
   });
 }
 
