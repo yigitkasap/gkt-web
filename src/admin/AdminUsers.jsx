@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Loader2, Shield, UserCog, Users } from 'lucide-react';
+import { Plus, Trash2, Loader2, Shield, UserCog, Users, KeyRound, Copy } from 'lucide-react';
 import { api } from './adminApi';
 import { useAuth, useToast, Modal, ConfirmDialog } from './AdminApp';
 
@@ -17,6 +17,8 @@ export default function AdminUsers() {
   const [form, setForm] = useState({ username: '', display_name: '', password: '', role: 'direktor', department: '' });
   const [saving, setSaving] = useState(false);
   const [confirm, setConfirm] = useState({ open: false, id: null });
+  const [resetConfirm, setResetConfirm] = useState(null); // { id, username }
+  const [tempPass, setTempPass] = useState(null); // { username, password }
 
   const load = () => { api.getUsers().then(setUsers).catch(() => toast('Yüklenemedi', 'error')).finally(() => setLoading(false)); };
   useEffect(load, []);
@@ -39,6 +41,12 @@ export default function AdminUsers() {
 
   const handleDelete = async () => {
     try { await api.deleteUser(confirm.id); toast('Kullanıcı silindi'); setConfirm({ open: false, id: null }); load(); }
+    catch (err) { toast(err.message, 'error'); }
+  };
+
+  const handleReset = async () => {
+    const target = resetConfirm; setResetConfirm(null);
+    try { const r = await api.resetUserPassword(target.id); setTempPass({ username: r.username, password: r.temporary_password }); }
     catch (err) { toast(err.message, 'error'); }
   };
 
@@ -86,9 +94,14 @@ export default function AdminUsers() {
                   <td className="px-4 py-3 text-slate-500 text-xs hidden md:table-cell">{u.department || '-'}</td>
                   <td className="px-4 py-3 text-slate-400 text-xs hidden lg:table-cell">{new Date(u.created_at).toLocaleDateString('tr-TR')}</td>
                   <td className="px-2 sm:px-4 py-3 text-right">
-                    {u.id !== currentUser.id && u.id !== 1 && (
-                      <button onClick={() => setConfirm({ open: true, id: u.id })} className="p-1.5 hover:bg-red-50 rounded-lg text-red-500 transition" title="Sil"><Trash2 className="w-4 h-4" /></button>
-                    )}
+                    <div className="inline-flex items-center gap-1">
+                      {u.id !== currentUser.id && (u.id !== 1 || currentUser.id === 1) && (
+                        <button onClick={() => setResetConfirm({ id: u.id, username: u.username })} className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 transition" title="Şifre sıfırla" aria-label={`${u.username} şifresini sıfırla`}><KeyRound className="w-4 h-4" /></button>
+                      )}
+                      {u.id !== currentUser.id && u.id !== 1 && (
+                        <button onClick={() => setConfirm({ open: true, id: u.id })} className="p-1.5 hover:bg-red-50 rounded-lg text-red-500 transition" title="Sil" aria-label={`${u.username} hesabını sil`}><Trash2 className="w-4 h-4" /></button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );
@@ -108,7 +121,7 @@ export default function AdminUsers() {
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Şifre *</label>
             <input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" />
-            <p className="text-[10px] text-slate-400 mt-1">En az 8 karakter. Büyük harf, küçük harf ve rakam içermeli.</p>
+            <p className="text-[10px] text-slate-400 mt-1">En az 10 karakter. Uzun bir parola cümlesi en güvenlisidir; başka yerde kullandığın şifreyi kullanma.</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Rol</label>
@@ -134,6 +147,33 @@ export default function AdminUsers() {
             <button onClick={handleSave} disabled={saving} className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 rounded-lg transition">{saving ? 'Oluşturuluyor...' : 'Oluştur'}</button>
           </div>
         </div>
+      </Modal>
+
+      {resetConfirm && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center animate-overlay" onClick={() => setResetConfirm(null)}>
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative bg-white rounded-xl p-6 max-w-sm w-full mx-4 shadow-2xl animate-modal-in" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-slate-800 mb-2">Şifre sıfırlansın mı?</h3>
+            <p className="text-slate-600 text-sm mb-6"><b>{resetConfirm.username}</b> için yeni bir geçici şifre üretilecek. Mevcut şifresi ve açık oturumları hemen geçersiz olur.</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setResetConfirm(null)} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">İptal</button>
+              <button onClick={handleReset} className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition">Sıfırla</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Modal open={!!tempPass} onClose={() => setTempPass(null)} title="Geçici şifre">
+        {tempPass && (
+          <div className="space-y-4">
+            <p className="text-sm text-slate-600"><b>{tempPass.username}</b> hesabının yeni geçici şifresi aşağıda. Bu pencere kapanınca bir daha gösterilmez; kişiye özel mesajla ilet ve ilk girişte değiştirmesini iste.</p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 px-3 py-2.5 bg-slate-100 rounded-lg text-sm font-mono text-slate-800 select-all break-all">{tempPass.password}</code>
+              <button onClick={() => { navigator.clipboard?.writeText(tempPass.password).then(() => toast('Kopyalandı')).catch(() => toast('Kopyalanamadı, elle seç', 'error')); }} className="p-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition" aria-label="Şifreyi kopyala"><Copy className="w-4 h-4" /></button>
+            </div>
+            <div className="flex justify-end"><button onClick={() => setTempPass(null)} className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-lg transition">Tamam</button></div>
+          </div>
+        )}
       </Modal>
 
       <ConfirmDialog open={confirm.open} title="Kullanıcıyı Sil" message="Bu kullanıcıyı silmek istediğinize emin misiniz?" onConfirm={handleDelete} onCancel={() => setConfirm({ open: false, id: null })} />

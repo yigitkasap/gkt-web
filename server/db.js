@@ -272,8 +272,10 @@ try { db.prepare("UPDATE ugz_sponsors SET tier='gumus'   WHERE tier='silver'").r
 try { db.prepare("UPDATE ugz_sponsors SET tier='logo'    WHERE tier='bronze'").run(); } catch {}
 try { db.prepare("UPDATE ugz_sponsors SET tier='ulasim'  WHERE tier='supporter'").run(); } catch {}
 
-// Migration: clear phone numbers for all team members except Atahan Sineoğlu
-db.prepare("UPDATE team_members SET phone = '' WHERE name != 'Atahan Sineoğlu' AND phone != '' AND phone IS NOT NULL").run();
+// (Tek seferlik telefon temizliği Kasım 2026'da kaldırıldı: kişi adı içeriyordu ve canlıda zaten uygulanmıştı.)
+
+// Migration: token_version — şifre değişince/hesap silinince eski oturumlar anında geçersiz olur
+try { db.exec("ALTER TABLE users ADD COLUMN token_version INTEGER DEFAULT 0"); } catch {}
 
 // Migration: add slug column to blog_posts
 try { db.exec("ALTER TABLE blog_posts ADD COLUMN slug TEXT"); } catch {}

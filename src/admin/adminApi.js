@@ -50,6 +50,18 @@ export const api = {
     if (isDemoMode()) throw new Error(DEMO_WRITE_ERROR);
     return request(`${API}/auth/users`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(data) });
   },
+  // Şifre değiştirme (kendi) — yeni token döner, eski oturumlar kapanır
+  changePassword: async (current_password, new_password) => {
+    if (isDemoMode()) throw new Error(DEMO_WRITE_ERROR);
+    const data = await request(`${API}/auth/password`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ current_password, new_password }) });
+    if (data.token) localStorage.setItem('gkt-admin-token', data.token);
+    return data;
+  },
+  // Admin şifre sıfırlama — geçici şifre bir kez döner
+  resetUserPassword: (id) => {
+    if (isDemoMode()) throw new Error(DEMO_WRITE_ERROR);
+    return request(`${API}/auth/users/${id}/password`, { method: 'PUT', headers: authHeaders() });
+  },
   deleteUser: (id) => {
     if (isDemoMode()) throw new Error(DEMO_WRITE_ERROR);
     return request(`${API}/auth/users/${id}`, { method: 'DELETE', headers: authHeaders() });
@@ -144,7 +156,7 @@ export const api = {
   // Settings
   getSettings: () => {
     if (isDemoMode()) return Promise.resolve(demoSettings);
-    return request(`${API}/settings`);
+    return request(`${API}/settings`, { headers: authHeaders() });
   },
   updateSetting: (key, value) => {
     if (isDemoMode()) throw new Error(DEMO_WRITE_ERROR);

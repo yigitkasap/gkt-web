@@ -8,31 +8,8 @@ import db from '../db.js';
 const isEmpty = (table) => db.prepare(`SELECT COUNT(*) as c FROM ${table}`).get().c === 0;
 
 // ═══════ TEAM MEMBERS ═══════
-if (isEmpty('team_members')) {
-  const insert = db.prepare('INSERT INTO team_members (name, role_title, department, image_path, phone, email, linkedin, sort_order, is_board) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
-  const team = [
-    { name: "Atahan Sineoğlu", role_title: "Yönetim Kurulu Başkanı", department: "Yönetim Kurulu", image_path: "/assets/team/atahan_sineoglu.jpg", phone: "+905511677968", email: "atahansineoglu@akdenizgkt.com", sort_order: 1, is_board: 1 },
-    { name: "Rabia Öztürk", role_title: "Yönetim Kurulu Genel Koordinatörü", department: "Yönetim Kurulu", image_path: "/assets/team/rabia_ozturk.jpg", phone: "", email: "rabiaozturk@akdenizgkt.com", sort_order: 2, is_board: 1 },
-    { name: "Elif Sude Mızrak", role_title: "Yönetim Kurulu Başkan Yardımcısı", department: "Yönetim Kurulu", image_path: "/assets/team/elif_sude_mizrak.jpg", phone: "", email: "elifsudemizrak@akdenizgkt.com", sort_order: 3, is_board: 1 },
-    { name: "Muhammed Alparslan", role_title: "Denetim Kurulu Üyesi", department: "Yönetim Kurulu", image_path: "/assets/team/muhammed_alparslan.jpg", phone: "", email: "muhammedalparslan@akdenizgkt.com", sort_order: 4, is_board: 1 },
-    { name: "İsmail Buğra Yeşilyurt", role_title: "Denetim Kurulu Üyesi", department: "Yönetim Kurulu", image_path: "/assets/team/ismail_bugra_yesilyurt.jpg", phone: "", email: "ismailbugrayesilyurt@akdenizgkt.com", sort_order: 5, is_board: 1 },
-    { name: "Doğa Naz Yılmaz", role_title: "Etkinlik ve Organizasyon Koordinatörü", department: "Etkinlik ve Org.", image_path: "/assets/team/doga_naz_yilmaz.jpg", phone: "", email: "doganazyilmaz@akdenizgkt.com", sort_order: 6, is_board: 1 },
-    { name: "Serra Güllü", role_title: "Kurumsal İlişkiler Koordinatörü", department: "Kurumsal İlişkiler", image_path: "/assets/team/serra_gullu.jpg", phone: "", email: "serragullu@akdenizgkt.com", sort_order: 7, is_board: 1 },
-    { name: "Süeda Nur Şahinol", role_title: "Üye İlişkileri Koordinatörü", department: "Üye İlişkileri", image_path: "/assets/team/sueda_sahinol.jpg", phone: "", email: "suedanursahinol@akdenizgkt.com", sort_order: 8, is_board: 1 },
-    { name: "Melih Demir", role_title: "Medya ve IT Koordinatörü", department: "Medya ve IT", image_path: "/assets/team/melih_demir.jpg", phone: "", email: "melihdemir@akdenizgkt.com", sort_order: 9, is_board: 1 },
-    { name: "Mehmet Baytemir", role_title: "Tasarım Takım Direktörü", department: "Medya ve IT", image_path: "/assets/team/mehmet_baytemir.jpg", phone: "", email: "mehmetbaytemir@akdenizgkt.com", sort_order: 10, is_board: 0 },
-    { name: "Merve Çakmak", role_title: "İçerik Takım Direktörü", department: "Medya ve IT", image_path: "/assets/team/merve_cakmak.jpg", phone: "", email: "mervecakmak@akdenizgkt.com", sort_order: 11, is_board: 0 },
-    { name: "Fatih Türkan", role_title: "Etkinlik Takım Direktörü", department: "Etkinlik ve Org.", image_path: "/assets/team/fatih_turkkan.jpg", phone: "", email: "fatihturkan@akdenizgkt.com", sort_order: 12, is_board: 0 },
-    { name: "Salih Yaşar", role_title: "Proje Takım Direktörü", department: "Etkinlik ve Org.", image_path: "/assets/team/salih_yasar.jpg", phone: "", email: "salihyasar@akdenizgkt.com", sort_order: 13, is_board: 0 },
-    { name: "Nuh Dablan", role_title: "Zirve Takım Direktörü", department: "Kurumsal İlişkiler", image_path: "/assets/team/nuh_dablan.jpg", phone: "", email: "nuhdablan@akdenizgkt.com", sort_order: 14, is_board: 0 },
-    { name: "Nehir Su Aras", role_title: "Finans Takım Direktörü", department: "Kurumsal İlişkiler", image_path: "/assets/team/nehir_su_aras.jpg", phone: "", email: "nehirsuaras@akdenizgkt.com", sort_order: 15, is_board: 0 },
-    { name: "Gaye Sena Aydoğmuş", role_title: "Ofis Takım Direktörü", department: "Üye İlişkileri", image_path: "/assets/team/gaye_sena_aydogmus.jpg", phone: "", email: "gayesenaaydogmus@akdenizgkt.com", sort_order: 16, is_board: 0 },
-    { name: "Mahmutcan Çakır", role_title: "Analiz Takım Direktörü", department: "Üye İlişkileri", image_path: "/assets/team/mahmutcan_cakir.jpg", phone: "", email: "mahmutcancakir@akdenizgkt.com", sort_order: 17, is_board: 0 },
-  ];
-  const tx = db.transaction(() => team.forEach(m => insert.run(m.name, m.role_title, m.department, m.image_path, m.phone, m.email, null, m.sort_order, m.is_board)));
-  tx();
-  console.log(`✓ ${team.length} team members seeded`);
-}
+// Ekip üyeleri panelden eklenir. Bu repo herkese açık: seed dosyasına gerçek kişi adı, fotoğrafı,
+// telefonu ya da e-postası yazılmaz.
 
 // ═══════ EVENTS ═══════
 if (isEmpty('events')) {

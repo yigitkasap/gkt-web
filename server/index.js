@@ -43,7 +43,9 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
+      // Satır içi script yok (Vite tek modül dosyası üretir); 'unsafe-inline' XSS korumasını zayıflattığı için kaldırıldı.
+      // JSON-LD (<script type="application/ld+json">) çalıştırılabilir script sayılmaz, etkilenmez.
+      scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],

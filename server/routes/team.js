@@ -1,13 +1,22 @@
 import { Router } from 'express';
 import db from '../db.js';
-import { requireAuth, requireAdmin, requireKoordinator } from '../auth.js';
+import { requireAuth, requireAdmin, requireKoordinator, optionalAuth } from '../auth.js';
 import { validateUrl, validateAssetPath } from '../validate.js';
 
 const router = Router();
 
+// Herkese açık yanıtta telefon ve e-posta yer almaz (KVKK: veri minimizasyonu).
+// Giriş yapmış ekip (panel) tüm alanları görür.
+const PUBLIC_COLUMNS = 'id, name, role_title, department, image_path, linkedin, sort_order, is_board, created_at';
+
+// Ekip, panelde "Ekibi sitede göster" (settings.team_public = 'true') açılana kadar herkese açık uçta görünmez.
+const teamIsPublic = () => db.prepare("SELECT value FROM settings WHERE key = 'team_public'").get()?.value === 'true';
+
 // GET /api/team — public (supports ?board=1, ?department=X)
 router.get('/', (req, res) => {
-  let sql = 'SELECT * FROM team_members';
+  const staff = optionalAuth(req);
+  if (!staff && !teamIsPublic()) return res.json([]);
+  let sql = `SELECT ${staff ? '*' : PUBLIC_COLUMNS} FROM team_members`;
   const conditions = [];
   const params = [];
   if (req.query.board !== undefined) { conditions.push('is_board = ?'); params.push(parseInt(req.query.board)); }
@@ -19,7 +28,9 @@ router.get('/', (req, res) => {
 });
 
 router.get('/:id', (req, res) => {
-  const member = db.prepare('SELECT * FROM team_members WHERE id = ?').get(req.params.id);
+  const staff = optionalAuth(req);
+  if (!staff && !teamIsPublic()) return res.status(404).json({ error: 'Üye bulunamadı' });
+  const member = db.prepare(`SELECT ${staff ? '*' : PUBLIC_COLUMNS} FROM team_members WHERE id = ?`).get(req.params.id);
   if (!member) return res.status(404).json({ error: 'Üye bulunamadı' });
   res.json(member);
 });

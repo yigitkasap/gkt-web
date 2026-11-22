@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Pencil, Trash2, Loader2, Upload, Search, Image as ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Upload, Search, Image as ImageIcon, Eye, EyeOff } from 'lucide-react';
 import { api } from './adminApi';
 import { useAuth, useToast, Modal, ConfirmDialog } from './AdminApp';
 import MediaPicker from './MediaPicker';
@@ -29,6 +29,21 @@ export default function AdminTeam() {
 
   const load = () => { api.getTeam().then(setMembers).catch(() => toast('Veriler yüklenemedi', 'error')).finally(() => setLoading(false)); };
   useEffect(load, []);
+
+  // Sitede ekip görünürlüğü (settings.team_public). Kapalıyken herkese açık sitede ve /api/team'de isim/fotoğraf görünmez.
+  const [teamPublic, setTeamPublic] = useState(null);
+  const [togglingPublic, setTogglingPublic] = useState(false);
+  useEffect(() => { api.getSettings().then(s => setTeamPublic(s.team_public === 'true')).catch(() => setTeamPublic(false)); }, []);
+  const togglePublic = async () => {
+    setTogglingPublic(true);
+    const next = !teamPublic;
+    try {
+      await api.updateSetting('team_public', next ? 'true' : 'false');
+      setTeamPublic(next);
+      toast(next ? 'Ekip sitede yayında' : 'Ekip sitede gizlendi');
+    } catch (err) { toast(err.message, 'error'); }
+    finally { setTogglingPublic(false); }
+  };
 
   const openNew = () => { setEditing(null); setForm({ ...EMPTY, department: !isAdmin ? user.department : '' }); setModalOpen(true); };
   const openEdit = (m) => { setEditing(m.id); setForm({ ...m }); setModalOpen(true); };
@@ -82,6 +97,23 @@ export default function AdminTeam() {
         <h1 className="text-2xl font-bold text-slate-800">Ekip Üyeleri</h1>
         {canAdd && <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-semibold rounded-lg hover:bg-red-700 transition"><Plus className="w-4 h-4" /> Yeni Üye Ekle</button>}
       </div>
+
+      {teamPublic !== null && (
+        <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border px-4 py-3 ${teamPublic ? 'bg-emerald-50 border-emerald-200' : 'bg-amber-50 border-amber-200'}`}>
+          <div className="flex items-start gap-3">
+            {teamPublic ? <Eye className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" /> : <EyeOff className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />}
+            <div>
+              <p className={`text-sm font-semibold ${teamPublic ? 'text-emerald-800' : 'text-amber-800'}`}>{teamPublic ? 'Ekip sitede yayında' : 'Ekip sitede gizli'}</p>
+              <p className="text-xs text-slate-600 mt-0.5">{teamPublic ? 'İsimler ve fotoğraflar Hakkımızda ve Departmanlar sayfalarında görünüyor.' : 'Sitede isim ve fotoğraf yerine "Yakında" rol kartları görünüyor. Yeni kadroyu ekleyip kontrol ettikten sonra yayına al.'}</p>
+            </div>
+          </div>
+          {isAdmin && (
+            <button onClick={togglePublic} disabled={togglingPublic} className={`shrink-0 px-4 py-2 text-sm font-semibold rounded-lg transition disabled:opacity-60 ${teamPublic ? 'bg-white border border-gray-300 text-slate-700 hover:bg-gray-50' : 'bg-emerald-600 text-white hover:bg-emerald-700'}`}>
+              {togglingPublic ? 'Kaydediliyor...' : teamPublic ? 'Sitede gizle' : 'Sitede yayınla'}
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">

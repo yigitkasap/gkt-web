@@ -2,7 +2,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { Routes, Route, NavLink, useNavigate, useLocation, Navigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard, Users, CalendarDays, FileText, Handshake, Mail,
-  Clock, Target, Settings, UserCog, LogOut, Menu, X, ChevronRight, Bell, PanelLeftClose, PanelLeft, Rocket, Image, Gift
+  Clock, Target, Settings, UserCog, LogOut, Menu, X, ChevronRight, Bell, PanelLeftClose, PanelLeft, Rocket, Image, Gift, KeyRound
 } from 'lucide-react';
 import { api, getToken, isDemoMode } from './adminApi';
 import AdminLogin from './AdminLogin';
@@ -71,6 +71,39 @@ export function ConfirmDialog({ open, title, message, onConfirm, onCancel }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function ChangePasswordModal({ open, onClose }) {
+  const toast = useToast();
+  const [f, setF] = useState({ current: '', next: '', again: '' });
+  const [saving, setSaving] = useState(false);
+  const close = () => { setF({ current: '', next: '', again: '' }); onClose(); };
+  const save = async () => {
+    if (f.next.length < 10) return toast('Yeni şifre en az 10 karakter olmalı', 'error');
+    if (f.next !== f.again) return toast('Yeni şifreler eşleşmiyor', 'error');
+    setSaving(true);
+    try { await api.changePassword(f.current, f.next); toast('Şifren değişti. Diğer cihazlardaki oturumların kapandı.'); close(); }
+    catch (err) { toast(err.message, 'error'); }
+    finally { setSaving(false); }
+  };
+  const input = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500';
+  return (
+    <Modal open={open} onClose={close} title="Şifremi Değiştir">
+      <div className="space-y-4">
+        <div><label className="block text-sm font-medium text-slate-700 mb-1">Mevcut şifre</label><input type="password" autoComplete="current-password" value={f.current} onChange={e => setF(s => ({ ...s, current: e.target.value }))} className={input} /></div>
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Yeni şifre</label>
+          <input type="password" autoComplete="new-password" value={f.next} onChange={e => setF(s => ({ ...s, next: e.target.value }))} className={input} />
+          <p className="text-[11px] text-slate-500 mt-1">En az 10 karakter. Uzun bir parola cümlesi en güvenlisidir.</p>
+        </div>
+        <div><label className="block text-sm font-medium text-slate-700 mb-1">Yeni şifre (tekrar)</label><input type="password" autoComplete="new-password" value={f.again} onChange={e => setF(s => ({ ...s, again: e.target.value }))} onKeyDown={e => e.key === 'Enter' && save()} className={input} /></div>
+        <div className="flex justify-end gap-3 pt-2">
+          <button onClick={close} className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-gray-100 rounded-lg transition">İptal</button>
+          <button onClick={save} disabled={saving || !f.current || !f.next} className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 disabled:bg-red-300 rounded-lg transition">{saving ? 'Kaydediliyor...' : 'Şifreyi Değiştir'}</button>
+        </div>
+      </div>
+    </Modal>
   );
 }
 
@@ -153,6 +186,7 @@ function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [pwOpen, setPwOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -188,6 +222,7 @@ function AdminLayout() {
     <AuthContext.Provider value={user}>
       <ToastProvider>
         <div className="min-h-screen bg-gray-50 flex">
+          <ChangePasswordModal open={pwOpen} onClose={() => setPwOpen(false)} />
           {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden animate-overlay" onClick={() => setSidebarOpen(false)} />}
 
           {/* Sidebar */}
@@ -256,6 +291,9 @@ function AdminLayout() {
                   <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-white text-xs font-bold" title={user.display_name}>
                     {user.display_name?.[0]?.toUpperCase() || 'A'}
                   </div>
+                  <button onClick={() => setPwOpen(true)} className="p-2 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-all duration-200" title="Şifremi Değiştir" aria-label="Şifremi değiştir">
+                    <KeyRound className="w-4 h-4" />
+                  </button>
                   <button onClick={logout} className="p-2 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-all duration-200" title="Çıkış Yap">
                     <LogOut className="w-4 h-4" />
                   </button>
@@ -271,6 +309,11 @@ function AdminLayout() {
                       <div className="text-slate-400 text-xs truncate">{user.role === 'admin' ? 'Yönetim Kurulu' : user.department ? `${user.department} ${user.role === 'koordinator' ? 'Koordinatörü' : 'Direktörü'}` : user.role === 'koordinator' ? 'Koordinatör' : 'Direktör'}</div>
                     </div>
                   </div>
+                  {!isDemoMode() && (
+                    <button onClick={() => setPwOpen(true)} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all duration-200 active:scale-[0.97]">
+                      <KeyRound className="w-4 h-4" /> Şifremi Değiştir
+                    </button>
+                  )}
                   <button onClick={logout} className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all duration-200 active:scale-[0.97]">
                     <LogOut className="w-4 h-4" /> Çıkış Yap
                   </button>

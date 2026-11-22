@@ -591,16 +591,111 @@ function HomePage({ navigate }) {
 /* ══════════════════════════════════════════════════════════════
    PAGE: HAKKIMIZDA
    ══════════════════════════════════════════════════════════════ */
+function TeamRoster({ currentTeam }) {
+            const TeamCard = ({ m, i }) => (
+              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-red-200 hover:shadow-xl transition-all group anim-fade flex flex-col" style={{ animationDelay: `${i * 60}ms` }}>
+                <div className="aspect-square overflow-hidden relative">
+                  <img src={m.image} alt={m.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to right, rgba(220,38,38,0.12) 0%, transparent 60%)" }} />
+                </div>
+                <div className="p-4 flex flex-col flex-1">
+                  <div className="flex-1">
+                    <h3 className="font-display font-bold text-slate-900 text-sm leading-tight">{m.name}</h3>
+                    <p className="text-[11px] text-slate-400 mt-0.5">{m.role}</p>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                    <a href={`mailto:${m.email}`} title={m.email} className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 flex items-center justify-center transition-colors">
+                      <Mail className="w-3.5 h-3.5 text-slate-400 hover:text-red-500 transition-colors" />
+                    </a>
+                    {m.role === "Yönetim Kurulu Başkanı" && m.phone && <a href={`tel:${m.phone}`} title={m.phone} className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 flex items-center justify-center transition-colors">
+                      <Phone className="w-3.5 h-3.5 text-slate-400 hover:text-red-500 transition-colors" />
+                    </a>}
+                    <a href={`https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(m.name)}`} target="_blank" rel="noopener noreferrer" title="LinkedIn" className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-blue-50 flex items-center justify-center transition-colors">
+                      <Linkedin className="w-3.5 h-3.5 text-slate-400 hover:text-blue-600 transition-colors" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            );
+            const yonetim = currentTeam.slice(0, 3);
+            const denetim = currentTeam.filter(m => m.role && m.role.includes('Denetim'));
+            const yurutme = currentTeam.slice(3).filter(m => !m.role || !m.role.includes('Denetim'));
+            const cardWidth = "w-[calc(50%-10px)] sm:w-[calc(33.333%-14px)] md:w-[calc(25%-15px)]";
+            return (
+              <>
+                <div className="sm:flex sm:justify-center sm:gap-5 hidden">
+                  {[yonetim[0], yonetim[2], yonetim[1]].filter(Boolean).map((m, i) => <div key={m.name || i} className={cardWidth}><TeamCard m={m} i={i} /></div>)}
+                </div>
+                <div className="flex flex-col items-center gap-5 sm:hidden">
+                  {yonetim[0] && <div className={cardWidth}><TeamCard m={yonetim[0]} i={0} /></div>}
+                  <div className="flex justify-center gap-5 w-full flex-row-reverse">
+                    {yonetim.slice(1).map((m, i) => <div key={m.name || i} className={cardWidth}><TeamCard m={m} i={i + 1} /></div>)}
+                  </div>
+                </div>
+                {denetim.length > 0 && (
+                  <div className="mt-16">
+                    <SectionTitle badge="Ekibimiz" title="Denetim Kurulu" desc="Topluluğumuzun denetim kurulu üyeleri." />
+                    <div className="flex justify-center gap-5 flex-wrap">
+                      {denetim.map((m, i) => <div key={m.name || i} className={cardWidth}><TeamCard m={m} i={i + 3} /></div>)}
+                    </div>
+                  </div>
+                )}
+                <div className="mt-16">
+                  <SectionTitle badge="Ekibimiz" title="Yürütme Kadromuz" desc="Koordinatörler ve takım direktörlerimiz." />
+                  <div className="flex justify-center gap-5 flex-wrap">
+                    {yurutme.map((m, i) => <div key={m.name || i} className={cardWidth}><TeamCard m={m} i={i + 5} /></div>)}
+                  </div>
+                </div>
+              </>
+            );
+}
+
+// Yeni kadro açıklanana kadar isim/fotoğraf yerine rol kartları gösterilir.
+const ROSTER_ROLES = ["Yönetim Kurulu Başkanı", "Başkan Yardımcısı", "Genel Koordinatör", "Denetim Kurulu", "Medya ve IT Koordinatörü", "Etkinlik ve Organizasyon Koordinatörü", "Kurumsal İlişkiler Koordinatörü", "Üye İlişkileri Koordinatörü"];
+
+function RosterSoon({ navigate }) {
+  return (
+    <div>
+      <ul className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+        {ROSTER_ROLES.map((r, i) => (
+          <li key={r} className="bg-white rounded-2xl border border-gray-100 p-5 md:p-6 flex flex-col items-center text-center anim-fade" style={{ animationDelay: `${i * 50}ms` }}>
+            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center mb-4 ring-4 ring-slate-50" aria-hidden="true">
+              <User className="w-7 h-7 md:w-8 md:h-8 text-slate-400" />
+            </div>
+            <p className="font-display font-bold text-slate-900 text-sm leading-snug">{r}</p>
+            <span className="mt-2.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 text-red-700 text-[11px] font-display font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500" aria-hidden="true" /> Yakında
+            </span>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-10 text-center">
+        <button onClick={() => navigate("iletisim")} className="inline-flex items-center gap-2 min-h-[44px] px-6 py-2.5 border-2 border-red-200 text-red-600 hover:bg-red-50 text-sm font-display font-semibold rounded-xl transition-all">
+          Ekibimize katılmak ister misin? <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function HakkimizdaPage({ navigate }) {
+  const { settings } = useSiteData();
+  // Kişi adları/fotoğrafları yalnızca panelde "Ekibi sitede göster" açıkken görünür (team_public).
+  const teamVisible = settings.team_public === 'true';
   const [apiTeam, setApiTeam] = useState(null);
   const [apiMilestones, setApiMilestones] = useState(null);
 
   useEffect(() => {
+    if (!teamVisible) return;
     fetchTeam().then(d => Array.isArray(d) && d.length > 0 && setApiTeam(d.map(m => ({ name: m.name, role: m.role_title, image: m.image_path, phone: m.phone, email: m.email })))).catch(() => {});
+  }, [teamVisible]);
+
+  useEffect(() => {
     fetchMilestones().then(d => Array.isArray(d) && d.length > 0 && setApiMilestones(d.map((m, i) => ({ year: m.year, title: m.title, text: m.description, icon: Star, color: MILESTONES[i]?.color || "from-red-500 to-rose-600" })))).catch(() => {});
   }, []);
 
   const currentTeam = apiTeam || TEAM;
+  const showRoster = teamVisible && currentTeam.length > 0;
   const currentMilestones = apiMilestones || MILESTONES;
 
   return (
@@ -635,65 +730,8 @@ function HakkimizdaPage({ navigate }) {
       {/* Team */}
       <section className="py-20 md:py-28 bg-slate-50 bg-dots">
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          <SectionTitle badge="Ekibimiz" title="Yönetim Kadromuz" desc="Topluluğumuzun yönetim kadrosunu tanıyın." />
-          {(() => {
-            const TeamCard = ({ m, i }) => (
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-red-200 hover:shadow-xl transition-all group anim-fade flex flex-col" style={{ animationDelay: `${i * 60}ms` }}>
-                <div className="aspect-square overflow-hidden relative">
-                  <img src={m.image} alt={m.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to right, rgba(220,38,38,0.12) 0%, transparent 60%)" }} />
-                </div>
-                <div className="p-4 flex flex-col flex-1">
-                  <div className="flex-1">
-                    <h3 className="font-display font-bold text-slate-900 text-sm leading-tight">{m.name}</h3>
-                    <p className="text-[11px] text-slate-400 mt-0.5">{m.role}</p>
-                  </div>
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                    <a href={`mailto:${m.email}`} title={m.email} className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 flex items-center justify-center transition-colors">
-                      <Mail className="w-3.5 h-3.5 text-slate-400 hover:text-red-500 transition-colors" />
-                    </a>
-                    {m.role === "Yönetim Kurulu Başkanı" && m.phone && <a href={`tel:${m.phone}`} title={m.phone} className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 flex items-center justify-center transition-colors">
-                      <Phone className="w-3.5 h-3.5 text-slate-400 hover:text-red-500 transition-colors" />
-                    </a>}
-                    <a href={`https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(m.name)}`} target="_blank" rel="noopener noreferrer" title="LinkedIn" className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-blue-50 flex items-center justify-center transition-colors">
-                      <Linkedin className="w-3.5 h-3.5 text-slate-400 hover:text-blue-600 transition-colors" />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            );
-            const yonetim = currentTeam.slice(0, 3);
-            const denetim = currentTeam.filter(m => m.role && m.role.includes('Denetim'));
-            const yurutme = currentTeam.slice(3).filter(m => !m.role || !m.role.includes('Denetim'));
-            const cardWidth = "w-[calc(50%-10px)] sm:w-[calc(33.333%-14px)] md:w-[calc(25%-15px)]";
-            return (
-              <>
-                <div className="sm:flex sm:justify-center sm:gap-5 hidden">
-                  {[yonetim[0], yonetim[2], yonetim[1]].map((m, i) => <div key={m.name || i} className={cardWidth}><TeamCard m={m} i={i} /></div>)}
-                </div>
-                <div className="flex flex-col items-center gap-5 sm:hidden">
-                  <div className={cardWidth}><TeamCard m={yonetim[0]} i={0} /></div>
-                  <div className="flex justify-center gap-5 w-full flex-row-reverse">
-                    {yonetim.slice(1).map((m, i) => <div key={m.name || i} className={cardWidth}><TeamCard m={m} i={i + 1} /></div>)}
-                  </div>
-                </div>
-                {denetim.length > 0 && (
-                  <div className="mt-16">
-                    <SectionTitle badge="Ekibimiz" title="Denetim Kurulu" desc="Topluluğumuzun denetim kurulu üyeleri." />
-                    <div className="flex justify-center gap-5 flex-wrap">
-                      {denetim.map((m, i) => <div key={m.name || i} className={cardWidth}><TeamCard m={m} i={i + 3} /></div>)}
-                    </div>
-                  </div>
-                )}
-                <div className="mt-16">
-                  <SectionTitle badge="Ekibimiz" title="Yürütme Kadromuz" desc="Koordinatörler ve takım direktörlerimiz." />
-                  <div className="flex justify-center gap-5 flex-wrap">
-                    {yurutme.map((m, i) => <div key={m.name || i} className={cardWidth}><TeamCard m={m} i={i + 5} /></div>)}
-                  </div>
-                </div>
-              </>
-            );
-          })()}
+          <SectionTitle badge="Ekibimiz" title="Yönetim Kadromuz" desc={showRoster ? "Topluluğumuzun yönetim kadrosunu tanıyın." : "Yeni dönem yönetim kadromuz yakında burada açıklanacak."} />
+          {showRoster ? <TeamRoster currentTeam={currentTeam} /> : <RosterSoon navigate={navigate} />}
         </div>
       </section>
 
@@ -976,10 +1014,13 @@ function TeamMemberImage({ src, alt }) {
 }
 
 function DepartmanlarPage() {
+  const { settings } = useSiteData();
+  const teamVisible = settings.team_public === 'true';
   const [active, setActive] = useState(0);
   const [apiTeamMembers, setApiTeamMembers] = useState(null);
 
   useEffect(() => {
+    if (!teamVisible) return;
     fetchTeam().then(d => {
       if (!Array.isArray(d) || d.length === 0) return;
       const byDept = {};
@@ -990,10 +1031,10 @@ function DepartmanlarPage() {
       });
       setApiTeamMembers(byDept);
     }).catch(() => {});
-  }, []);
+  }, [teamVisible]);
 
   const dept = { ...DEPARTMENTS[active] };
-  if (apiTeamMembers) {
+  if (teamVisible && apiTeamMembers) {
     const deptNameMap = { "Medya ve IT": "Medya ve IT", "Etkinlik ve Organizasyon": "Etkinlik ve Org.", "Kurumsal İlişkiler": "Kurumsal İlişkiler", "Üye İlişkileri": "Üye İlişkileri" };
     const apiKey = Object.entries(deptNameMap).find(([, v]) => v === dept.name)?.[0] || dept.name;
     const members = apiTeamMembers[apiKey] || apiTeamMembers[dept.name];

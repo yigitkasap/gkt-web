@@ -1,10 +1,10 @@
 // DEMO MODE — örnek veriler
 export const demoTeam = [
-  { id: 1, name: "Atahan Sineoğlu", role_title: "Yönetim Kurulu Başkanı", department: "Yönetim Kurulu", email: "atahansineoglu@akdenizgkt.com", phone: "+905511677968", image_path: "/assets/atahan_sineoglu.png", sort_order: 1, is_board: 1 },
-  { id: 2, name: "Rabia Öztürk", role_title: "Genel Koordinatör", department: "Yönetim Kurulu", email: "rabiaozturk@akdenizgkt.com", phone: "", image_path: "/assets/rabia_ozturk.png", sort_order: 2, is_board: 1 },
-  { id: 3, name: "Elif Sude Mızrak", role_title: "Başkan Yardımcısı", department: "Yönetim Kurulu", email: "elifsudemizrak@akdenizgkt.com", phone: "", image_path: "/assets/elif_sude_mizrak.png", sort_order: 3, is_board: 1 },
-  { id: 4, name: "Melih Demir", role_title: "Medya ve IT Koordinatörü", department: "Medya ve IT", email: "melihdemir@akdenizgkt.com", phone: "", image_path: "/assets/melih_demir.png", sort_order: 9, is_board: 0 },
-  { id: 5, name: "Doğa Naz Yılmaz", role_title: "Etkinlik ve Org. Koordinatörü", department: "Etkinlik ve Organizasyon", email: "doganazyilmaz@akdenizgkt.com", phone: "", image_path: "/assets/doga_naz_yilmaz.png", sort_order: 6, is_board: 0 },
+  { id: 1, name: "Örnek Başkan", role_title: "Yönetim Kurulu Başkanı", department: "Yönetim Kurulu", email: "", phone: "", image_path: "/assets/atahan_sineoglu.png", sort_order: 1, is_board: 1 },
+  { id: 2, name: "Örnek Genel Koordinatör", role_title: "Genel Koordinatör", department: "Yönetim Kurulu", email: "", phone: "", image_path: "/assets/rabia_ozturk.png", sort_order: 2, is_board: 1 },
+  { id: 3, name: "Örnek Başkan Yardımcısı", role_title: "Başkan Yardımcısı", department: "Yönetim Kurulu", email: "", phone: "", image_path: "/assets/elif_sude_mizrak.png", sort_order: 3, is_board: 1 },
+  { id: 4, name: "Örnek Koordinatör", role_title: "Medya ve IT Koordinatörü", department: "Medya ve IT", email: "", phone: "", image_path: "/assets/melih_demir.png", sort_order: 9, is_board: 0 },
+  { id: 5, name: "Örnek Koordinatör 2", role_title: "Etkinlik ve Org. Koordinatörü", department: "Etkinlik ve Organizasyon", email: "", phone: "", image_path: "/assets/doga_naz_yilmaz.png", sort_order: 6, is_board: 0 },
 ];
 
 export const demoEvents = [
@@ -26,9 +26,9 @@ export const demoSponsors = [
 ];
 
 export const demoMessages = [
-  { id: 1, name: "Ali Yılmaz", email: "ali@ornek.com", phone: "05001234567", subject: "Üyelik Başvurusu", message: "Merhaba, topluluğunuza katılmak istiyorum. Başvuru süreci hakkında bilgi alabilir miyim?", is_read: 0, created_at: "2026-03-16 14:30:00" },
+  { id: 1, name: "Ali Yılmaz", email: "ali@ornek.com", phone: "", subject: "Üyelik Başvurusu", message: "Merhaba, topluluğunuza katılmak istiyorum. Başvuru süreci hakkında bilgi alabilir miyim?", is_read: 0, created_at: "2026-03-16 14:30:00" },
   { id: 2, name: "Ayşe Kaya", email: "ayse@ornek.com", phone: "", subject: "Sponsorluk Teklifi", message: "Firmamız adına sponsorluk hakkında bilgi almak istiyoruz.", is_read: 1, created_at: "2026-03-15 10:15:00" },
-  { id: 3, name: "Mehmet Demir", email: "mehmet@ornek.com", phone: "05009876543", subject: "Etkinlik Sorusu", message: "18. UGZ'ye katılım ücreti var mı? Kayıt nasıl yapılıyor?", is_read: 0, created_at: "2026-03-14 16:45:00" },
+  { id: 3, name: "Mehmet Demir", email: "mehmet@ornek.com", phone: "", subject: "Etkinlik Sorusu", message: "18. UGZ'ye katılım ücreti var mı? Kayıt nasıl yapılıyor?", is_read: 0, created_at: "2026-03-14 16:45:00" },
 ];
 
 export const demoMilestones = [
@@ -75,7 +75,7 @@ export const demoUGZSpeakers = [
 ];
 
 export const demoUGZProgram = [
-  { id: 1, time: "09:00 - 09:30", title: "Açılış Konuşması", description: "", speaker_name: "Atahan Sineoğlu", session_type: "opening", sort_order: 1, is_visible: 1 },
+  { id: 1, time: "09:00 - 09:30", title: "Açılış Konuşması", description: "", speaker_name: "Örnek Başkan", session_type: "opening", sort_order: 1, is_visible: 1 },
   { id: 2, time: "09:30 - 10:30", title: "Keynote: Girişimciliğin Geleceği", description: "", speaker_name: "Örnek Konuşmacı", session_type: "keynote", sort_order: 2, is_visible: 1 },
   { id: 3, time: "10:30 - 11:00", title: "Kahve Arası", description: "", speaker_name: "", session_type: "break", sort_order: 3, is_visible: 1 },
 ];
@@ -87,7 +87,7 @@ export const demoUGZSponsors = [
 
 export const demoMedia = {
   files: [
-    { filename: "demo-photo-1.jpg", path: "/assets/uploads/demo-photo-1.jpg", size: 245000, sizeFormatted: "245 KB", type: "image/jpeg", createdAt: "2026-03-16T12:00:00Z", usedIn: [{ type: "team", id: 1, label: "Ekip: Atahan Sineoğlu" }] },
+    { filename: "demo-photo-1.jpg", path: "/assets/uploads/demo-photo-1.jpg", size: 245000, sizeFormatted: "245 KB", type: "image/jpeg", createdAt: "2026-03-16T12:00:00Z", usedIn: [{ type: "team", id: 1, label: "Ekip: Örnek Başkan" }] },
     { filename: "demo-photo-2.jpg", path: "/assets/uploads/demo-photo-2.jpg", size: 180000, sizeFormatted: "180 KB", type: "image/jpeg", createdAt: "2026-03-15T10:00:00Z", usedIn: [] },
     { filename: "demo-logo.png", path: "/assets/uploads/demo-logo.png", size: 52000, sizeFormatted: "52 KB", type: "image/png", createdAt: "2026-03-14T08:00:00Z", usedIn: [{ type: "sponsor", id: 1, label: "Sponsor: Baglofy" }] },
   ],
