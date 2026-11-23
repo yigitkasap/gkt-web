@@ -597,9 +597,9 @@ function TeamRoster({ currentTeam }) {
                     <p className="text-[11px] text-slate-400 mt-0.5">{m.role}</p>
                   </div>
                   <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                    <a href={`mailto:${m.email}`} title={m.email} className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 flex items-center justify-center transition-colors">
+                    {m.email && <a href={`mailto:${m.email}`} title={m.email} className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 flex items-center justify-center transition-colors">
                       <Mail className="w-3.5 h-3.5 text-slate-400 hover:text-red-500 transition-colors" />
-                    </a>
+                    </a>}
                     {m.role === "Yönetim Kurulu Başkanı" && m.phone && <a href={`tel:${m.phone}`} title={m.phone} className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 flex items-center justify-center transition-colors">
                       <Phone className="w-3.5 h-3.5 text-slate-400 hover:text-red-500 transition-colors" />
                     </a>}
@@ -610,9 +610,13 @@ function TeamRoster({ currentTeam }) {
                 </div>
               </div>
             );
-            const yonetim = currentTeam.slice(0, 3);
-            const denetim = currentTeam.filter(m => m.role && m.role.includes('Denetim'));
-            const yurutme = currentTeam.slice(3).filter(m => !m.role || !m.role.includes('Denetim'));
+            // Gruplar sıraya göre değil role göre: denetim kurulu üyesi yönetim kartlarında tekrar görünmesin.
+            const isDenetim = m => !!m.role && m.role.includes('Denetim');
+            const digerleri = currentTeam.filter(m => !isDenetim(m));
+            const hasBoardFlag = digerleri.some(m => m.isBoard);
+            const yonetim = hasBoardFlag ? digerleri.filter(m => m.isBoard).slice(0, 3) : digerleri.slice(0, 3);
+            const denetim = currentTeam.filter(isDenetim);
+            const yurutme = digerleri.filter(m => !yonetim.includes(m));
             const cardWidth = "w-[calc(50%-10px)] sm:w-[calc(33.333%-14px)] md:w-[calc(25%-15px)]";
             return (
               <>
@@ -680,7 +684,7 @@ function HakkimizdaPage({ navigate }) {
 
   useEffect(() => {
     if (!teamVisible) return;
-    fetchTeam().then(d => Array.isArray(d) && d.length > 0 && setApiTeam(d.map(m => ({ name: m.name, role: m.role_title, image: m.image_path, phone: m.phone, email: m.email })))).catch(() => {});
+    fetchTeam().then(d => Array.isArray(d) && d.length > 0 && setApiTeam(d.map(m => ({ name: m.name, role: m.role_title, image: m.image_path, phone: m.phone, email: m.email, isBoard: !!m.is_board })))).catch(() => {});
   }, [teamVisible]);
 
   useEffect(() => {
@@ -1112,9 +1116,9 @@ function DepartmanlarPage() {
                           <h3 className="font-display font-bold text-slate-900 text-sm leading-tight">{m.name}</h3>
                         </div>
                         <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                          <a href={`mailto:${m.email}`} title={m.email} className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 flex items-center justify-center transition-colors">
+                          {m.email && <a href={`mailto:${m.email}`} title={m.email} className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 flex items-center justify-center transition-colors">
                             <Mail className="w-3.5 h-3.5 text-slate-400 hover:text-red-500 transition-colors" />
-                          </a>
+                          </a>}
                           <a href={`https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(m.name)}`} target="_blank" rel="noopener noreferrer" title="LinkedIn" className="w-8 h-8 rounded-lg bg-slate-50 hover:bg-blue-50 flex items-center justify-center transition-colors">
                             <Linkedin className="w-3.5 h-3.5 text-slate-400 hover:text-blue-600 transition-colors" />
                           </a>
