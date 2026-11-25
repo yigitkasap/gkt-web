@@ -172,11 +172,17 @@ function pageFor(pathname) {
   }
   if (p === '/clubcard') {
     // Yönetim kararı: Club Card yalnızca link/QR ile açılır — arama sonuçlarında listelenmez.
-    return { ...base, path: p, robots: 'noindex, follow', image: `${SITE}/assets/clubcard/kart-on.jpg`,
+    // Liste panelden yönetilir (clubcard_partners); tablo okunamazsa başlangıç verisine düşer.
+    const rows = q('SELECT * FROM clubcard_partners WHERE is_active = 1 ORDER BY sort_order ASC, id ASC')
+      .map(r => { let offers = []; try { offers = JSON.parse(r.offers || '[]'); } catch {} return { ...r, offers }; });
+    const partners = rows.length ? rows : CLUBCARD_PARTNERS;
+    const period = s.clubcard_period || CLUBCARD_PERIOD;
+    const offerText = (o) => o.discount ? `%${o.discount} indirim${o.scope ? ` (${o.scope})` : ''}` : o.scope;
+    return { ...base, path: p, robots: 'noindex, follow',
       title: 'GKT Club Card | Akdeniz GKT',
-      description: `GKT Club Card ile GKT Mutfak üyeleri Antalya'da ${CLUBCARD_PARTNERS.length} anlaşmalı işletmede indirimden yararlanır (${CLUBCARD_PERIOD}).`,
+      description: `GKT Club Card ile GKT Mutfak üyeleri Antalya'da ${partners.length} anlaşmalı işletmede indirimden yararlanır (${period}).`,
       ld: [organization(s)],
-      body: `<h1>GKT Club Card</h1><p>Bir kart, birçok ayrıcalık. GKT Mutfak üyelerine ${CLUBCARD_PERIOD} döneminde geçerli indirimler.</p>${list(CLUBCARD_PARTNERS.map(x => `<li>${esc(x.name)} — %${x.discount} indirim (${esc(x.category)}, ${esc(x.branch)})</li>`))}` };
+      body: `<h1>GKT Club Card</h1><p>Bir kart, birçok ayrıcalık. GKT Mutfak üyelerine ${esc(period)} döneminde geçerli indirimler.</p>${list(partners.map(x => `<li>${esc(x.name)} — ${esc((x.offers || []).map(offerText).join(', '))}${x.branch ? ` · ${esc(x.branch)}` : ''}${x.conditions ? ` · ${esc(String(x.conditions).split(String.fromCharCode(10)).join('; '))}` : ''}</li>`))}` };
   }
   if (p === '/cekilis') {
     return { ...base, path: p, robots: 'noindex, follow', title: 'Çekiliş | Akdeniz GKT', description: 'Akdeniz GKT çekiliş sonuçları.', ld: [organization(s)], body: '<h1>Çekiliş</h1>' };

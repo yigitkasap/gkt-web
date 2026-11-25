@@ -1,3 +1,4 @@
+import { CLUBCARD_PARTNERS, CLUBCARD_PERIOD } from '../clubcardData';
 import { demoTeam, demoEvents, demoBlog, demoSponsors, demoMessages, demoMilestones, demoActivities, demoSettings, demoUsers, demoUGZSettings, demoUGZSpeakers, demoUGZProgram, demoUGZSponsors, demoMedia } from './demoData';
 
 const API = '/api';
@@ -119,6 +120,28 @@ export const api = {
   deleteBlog: (id) => {
     if (isDemoMode()) throw new Error(DEMO_WRITE_ERROR);
     return request(`${API}/blog/${id}`, { method: 'DELETE', headers: authHeaders() });
+  },
+
+  // Club Card
+  getClubcard: () => {
+    if (isDemoMode()) return Promise.resolve({ period: CLUBCARD_PERIOD, partners: CLUBCARD_PARTNERS.map(p => ({ ...p, is_active: 1 })) });
+    return request(`${API}/clubcard/all`, { headers: authHeaders() });
+  },
+  createClubcardPartner: (data) => {
+    if (isDemoMode()) throw new Error(DEMO_WRITE_ERROR);
+    return request(`${API}/clubcard`, { method: 'POST', headers: authHeaders(), body: JSON.stringify(data) });
+  },
+  updateClubcardPartner: (id, data) => {
+    if (isDemoMode()) throw new Error(DEMO_WRITE_ERROR);
+    return request(`${API}/clubcard/${id}`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify(data) });
+  },
+  deleteClubcardPartner: (id) => {
+    if (isDemoMode()) throw new Error(DEMO_WRITE_ERROR);
+    return request(`${API}/clubcard/${id}`, { method: 'DELETE', headers: authHeaders() });
+  },
+  updateClubcardPeriod: (period) => {
+    if (isDemoMode()) throw new Error(DEMO_WRITE_ERROR);
+    return request(`${API}/clubcard/period`, { method: 'PUT', headers: authHeaders(), body: JSON.stringify({ period }) });
   },
 
   // Sponsors

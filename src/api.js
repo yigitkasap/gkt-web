@@ -41,3 +41,4 @@ export const fetchMilestones = () => get('/milestones');
 export const fetchActivities = () => get('/activities');
 export const fetchBlogBySlug = (slug) => get(`/blog/slug/${slug}`);
 export const fetchRaffles = () => get('/raffles');
+export const fetchClubcard = () => get('/clubcard');

@@ -2,7 +2,7 @@ import { useState, useEffect, createContext, useContext } from 'react';
 import { Routes, Route, NavLink, useNavigate, useLocation, Navigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard, Users, CalendarDays, FileText, Handshake, Mail,
-  Clock, Target, Settings, UserCog, LogOut, Menu, X, ChevronRight, Bell, PanelLeftClose, PanelLeft, Rocket, Image, Gift, KeyRound
+  Clock, Target, Settings, UserCog, LogOut, Menu, X, ChevronRight, Bell, PanelLeftClose, PanelLeft, Rocket, Image, Gift, KeyRound, CreditCard
 } from 'lucide-react';
 import { api, getToken, isDemoMode } from './adminApi';
 import AdminLogin from './AdminLogin';
@@ -11,6 +11,7 @@ import AdminTeam from './AdminTeam';
 import AdminEvents from './AdminEvents';
 import AdminBlog from './AdminBlog';
 import AdminSponsors from './AdminSponsors';
+import AdminClubcard from './AdminClubcard';
 import AdminMessages from './AdminMessages';
 import AdminSettings from './AdminSettings';
 import AdminMilestones from './AdminMilestones';
@@ -154,6 +155,7 @@ const MENU = [
   { path: '/admin/media', label: 'Medya', icon: Image, group: 'content' },
   { path: '/admin/blog', label: 'Blog & Duyurular', icon: FileText, group: 'content' },
   { path: '/admin/sponsors', label: 'Sponsorlar', icon: Handshake, group: 'content' },
+  { path: '/admin/clubcard', label: 'Club Card', icon: CreditCard, group: 'content' },
   { path: '/admin/messages', label: 'Mesajlar', icon: Mail, badge: true, group: 'content' },
   { divider: true, group: 'other-start' },
   { path: '/admin/milestones', label: 'Tarihçe', icon: Clock, group: 'other' },
@@ -172,6 +174,7 @@ const BREADCRUMBS = {
   '/admin/media': ['Dashboard', 'Medya Kütüphanesi'],
   '/admin/blog': ['Dashboard', 'Blog & Duyurular'],
   '/admin/sponsors': ['Dashboard', 'Sponsorlar'],
+  '/admin/clubcard': ['Dashboard', 'Club Card'],
   '/admin/messages': ['Dashboard', 'Mesajlar'],
   '/admin/milestones': ['Dashboard', 'Tarihçe'],
   '/admin/activities': ['Dashboard', 'Aktiviteler'],
@@ -361,6 +364,7 @@ function AdminLayout() {
                 <Route path="media" element={<AdminMedia />} />
                 <Route path="blog" element={<AdminBlog />} />
                 <Route path="sponsors" element={<AdminSponsors />} />
+                <Route path="clubcard" element={<AdminClubcard />} />
                 <Route path="messages" element={<AdminMessages />} />
                 <Route path="milestones" element={<AdminMilestones />} />
                 <Route path="activities" element={<AdminActivities />} />

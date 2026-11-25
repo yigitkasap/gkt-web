@@ -66,7 +66,8 @@ export function validateUrl(url) {
 export function validateAssetPath(p) {
   if (!p) return true;
   if (typeof p !== 'string') return false;
-  return /^\/assets\/[A-Za-z0-9._\-/]{1,200}$/.test(p);
+  // '..' ve '//' ile klasör dışına çıkılamaz
+  return /^\/assets\/[A-Za-z0-9._\-/]{1,200}$/.test(p) && !p.split('/').includes('..') && !p.includes('//');
 }
 
 // HTML escape for plain-text fields surfaced into HTML contexts.

@@ -244,6 +244,22 @@ db.exec(`
     is_visible INTEGER DEFAULT 1,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS clubcard_partners (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    category TEXT DEFAULT '',
+    branch TEXT DEFAULT '',
+    logo_path TEXT DEFAULT '',
+    offers TEXT DEFAULT '[]',
+    conditions TEXT DEFAULT '',
+    contact TEXT DEFAULT 'maps',
+    whatsapp TEXT DEFAULT '',
+    maps_url TEXT DEFAULT '',
+    is_active INTEGER DEFAULT 1,
+    sort_order INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  );
 `);
 
 // ═══════ MIGRATIONS ═══════
