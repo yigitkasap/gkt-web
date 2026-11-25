@@ -216,7 +216,14 @@ app.use((err, req, res, next) => {
 // ═══════ CLUB CARD REDIRECTS ═══════
 // Basılı GKT Club Card'lardaki QR kod https://akdenizgkt.com/clupkart adresine gidiyor — kaldırma.
 // (Frontend de aynı yönlendirmeyi yapıyor; bu, sunucu yeniden başlatılınca 301 olarak devreye girer.)
-app.get(['/clupkart', '/clubkart', '/clup-kart', '/club-card', '/clup-card'], (req, res) => res.redirect(301, '/clubcard'));
+// Yanlış yazımlar da /clubcard'a gider: club/clup/klub/klup/kulup/kulüp + card/kart/cart/kard,
+// arada tire/alt çizgi/boşluk, başta isteğe bağlı "gkt", büyük-küçük harf ve sondaki / fark etmez.
+const CLUBCARD_ALIAS = /^\/(gkt[-_ ]?)?(club|clup|klub|klup|kulup|kulüp|kulub)[-_ ]?(card|kart|cart|kard)\/?$/i;
+app.get(/.*/, (req, res, next) => {
+  let p; try { p = decodeURIComponent(req.path); } catch { return next(); }
+  if (p !== '/clubcard' && CLUBCARD_ALIAS.test(p)) return res.redirect(301, '/clubcard');
+  next();
+});
 // /clubcard menüde ve sitemap'te yok: yalnızca link ve QR ile açılır (yönetim kararı, Kasım 2026).
 
 // UGZ sayfası kaldırıldı (Kasım 2026) — eski linkler ana sayfaya.

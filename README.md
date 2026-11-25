@@ -17,7 +17,7 @@ Yerel üretim denemesi: `npm run build` ve ardından `NODE_ENV=production PORT=3
 ## Önemli kurallar
 - **Repo herkese açık.** Şifre, token, `.env`, veritabanı ya da kişisel veri (ad, telefon, e-posta, fotoğraf) commit'lenmez. Commit'ten önce `npm run guvenlik` çalıştır.
 - Ekip/kadro yalnızca panelden yönetilir. Panelde **Ekip → Sitede yayınla** açılana kadar sitede görünmez.
-- Club Card işletmeleri panelden yönetilir (**Panel → Club Card**, koordinatör ve admin). `src/clubcardData.js` yalnızca veritabanının ilk dolumu ve API'ye ulaşılamadığında yedek liste içindir. WhatsApp numaraları repoya yazılmaz, panelden girilir. Basılı kartlardaki QR `/clupkart` adresine gider; bu yönlendirme kaldırılmamalı.
+- Club Card işletmeleri panelden yönetilir (**Panel → Club Card**, koordinatör ve admin). `src/clubcardData.js` yalnızca veritabanının ilk dolumu ve API'ye ulaşılamadığında yedek liste içindir. WhatsApp numaraları repoya yazılmaz, panelden girilir. Basılı kartlardaki QR `/clupkart` adresine gider; bu ve diğer yanlış yazımlar (`clupcard`, `klup-kart`, `gkt-clubcard`…) `server/index.js` içindeki `CLUBCARD_ALIAS` kalıbıyla `/clubcard`'a yönlenir, kaldırılmamalı.
 - Sayfa metinlerini sunucu tarafı özet de kullanır: SSS ve departman metinleri `src/fallbackData.js` içinde.
 
 ## Belgeler

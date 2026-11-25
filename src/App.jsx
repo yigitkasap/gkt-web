@@ -90,6 +90,9 @@ const GlobalStyles = () => (
 /* ══════════════════════════════════════════════════════════════
    MAIN APP
    ══════════════════════════════════════════════════════════════ */
+// Club Card yanlış yazımları (sunucudaki CLUBCARD_ALIAS ile aynı küme): clupkart, clupcard, klup-kart, gkt-clubcard…
+const CLUBCARD_ALIASES = ["", "gkt", "gkt-"].flatMap(g => ["club", "clup", "klub", "klup", "kulup", "kulüp", "kulub"].flatMap(a => ["", "-", "_"].flatMap(s => ["card", "kart", "cart", "kard"].map(c => `/${g}${a}${s}${c}`)))).filter(p => p !== "/clubcard");
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -208,7 +211,7 @@ function MainLayout() {
           <Route path="/iletisim" element={<IletisimPage navigate={navigate} />} />
           <Route path="/clubcard" element={<Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full animate-spin" /></div>}><ClubCardPage /></Suspense>} />
           {/* Basılı kartlardaki QR kod /clupkart adresine gidiyor — kaldırma. */}
-          {["/clupkart", "/clubkart", "/clup-kart", "/club-card", "/clup-card"].map(p => <Route key={p} path={p} element={<Navigate to="/clubcard" replace />} />)}
+          {CLUBCARD_ALIASES.map(p => <Route key={p} path={p} element={<Navigate to="/clubcard" replace />} />)}
           <Route path="/cekilis" element={<CekilisPage active={rafflesActive} navigate={navigate} />} />
           {/* Backwards-compat redirect from old URL */}
           <Route path="/cekilis-sonuclari" element={<Navigate to="/cekilis" replace />} />

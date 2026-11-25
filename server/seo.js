@@ -178,7 +178,7 @@ function pageFor(pathname) {
     const partners = rows.length ? rows : CLUBCARD_PARTNERS;
     const period = s.clubcard_period || CLUBCARD_PERIOD;
     const offerText = (o) => o.discount ? `%${o.discount} indirim${o.scope ? ` (${o.scope})` : ''}` : o.scope;
-    return { ...base, path: p, robots: 'noindex, follow',
+    return { ...base, path: p, robots: 'noindex, follow', image: `${SITE}/assets/clubcard/kart-on.jpg`,
       title: 'GKT Club Card | Akdeniz GKT',
       description: `GKT Club Card ile GKT Mutfak üyeleri Antalya'da ${partners.length} anlaşmalı işletmede indirimden yararlanır (${period}).`,
       ld: [organization(s)],
